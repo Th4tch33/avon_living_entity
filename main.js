@@ -89,8 +89,11 @@ function draw() {
   swan.forEach(function(element, index, array) {    
     element.display();
     element.movementManager();
+  });
 
-    console.log(element.pos);
+  deer.forEach(function(element, index, array) {    
+    element.display();
+    element.movementManager();
   });
 
   /*
@@ -129,7 +132,7 @@ function scoreScreen() {
 function keyPressed () {
   if(key == 'z' || key == 'Z') {
     //spawnNature();
-    //spawnDeer();
+    spawnDeer();
     spawnSwan();
   }
   else if(key == 'x' || key == 'X') {
@@ -339,9 +342,9 @@ function spawnDeer() {
   
   deer.push(
     new animal(
-      p5.Vector(random(width), random(height)), // Position of the animal (initial location in the middle of the screen)
-      p5.Vector(0, 0),                       // Transformed position (starting offset position for movement calculations)
-      p5.Vector(0, 0),                  // New target location for the animal to move towards
+      createVector(random(width), random(height)), // Position of the animal (initial location in the middle of the screen)
+      createVector(0, 0),                       // Transformed position (starting offset position for movement calculations)
+      createVector(0, 0),                  // New target location for the animal to move towards
       int(random(15, 60)),                // Wait time (randomly assigned between 15 and 60) before moving again
       0,                                  // Initial wait timer (counts down to zero to control waiting state)
       0,                                  // Animation type (used for specifying animation behavior or type if needed)
@@ -503,6 +506,7 @@ class animal {
   }
 
   newLocationFinder() {
+
     if (!this.moving && this.waitTimer == 0) {
       this.moving = true;
 
@@ -526,7 +530,7 @@ class animal {
             this.newLocation.y = random(-this.range / 2, this.range / 2);
           }
         }
-    } else if (!this.moving && this.waitTimer == 0) {
+    } else if (!this.moving && this.waitTimer > 0) {
       this.waitTimer--;
         
       this.assetTracker = 0;
@@ -602,55 +606,55 @@ class animal {
   }
 
   jump() {
-    assetTracker = 2;
+    this.assetTracker = 2;
     
     let a;
     let b;
     
-    newLocationFinder();
+    this.newLocationFinder();
 
-    a = 2 / abs(newLocation.x);
-    b = newLocation.y / newLocation.x - a * newLocation.x;
+    a = 2 / abs(this.newLocation.x);
+    b = this.newLocation.y / this.newLocation.x - a * this.newLocation.x;
     
-    if(moving == true) {  
+    if(this.moving == true) {  
       
-      let loopIncrement = newLocation.x / speed;
+      let loopIncrement = this.newLocation.x / this.speed;
       
       if(loopIncrement > 0) {
-        direction = false;
+        this.direction = false;
       }
       else {
-        direction = true;
+        this.direction = true;
       }
       
-      transPos.x += loopIncrement;      
-      transPos.y = a * pow(transPos.x , 2) + b * transPos.x;
+      this.transPos.x += loopIncrement;      
+      this.transPos.y = a * pow(this.transPos.x , 2) + b * this.transPos.x;
       
-      if(loopIncrement < 0 && transPos.x + pos.x < newLocation.x + pos.x) {
-        moving = false;
-        waitTimer = waitTime;
+      if(loopIncrement < 0 && this.transPos.x + this.pos.x < this.newLocation.x + this.pos.x) {
+        this.moving = false;
+        this.waitTimer = this.waitTime;
         
-        pos.x += newLocation.x;
-        pos.y += newLocation.y;
+        this.pos.x += this.newLocation.x;
+        this.pos.y += this.newLocation.y;
         
-        newLocation.x = 0;
-        newLocation.y = 0;
+        this.newLocation.x = 0;
+        this.newLocation.y = 0;
         
-        transPos.x = 0;
-        transPos.y = 0;
+        this.transPos.x = 0;
+        this.transPos.y = 0;
       }
-      else if(loopIncrement > 0 && transPos.x + pos.x > newLocation.x + pos.x) {
-        moving = false;
-        waitTimer = waitTime;
+      else if(loopIncrement > 0 && this.transPos.x + this.pos.x > this.newLocation.x + this.pos.x) {
+        this.moving = false;
+        this.waitTimer = this.waitTime;
         
-        pos.x += newLocation.x;
-        pos.y += newLocation.y;
+        this.pos.x += this.newLocation.x;
+        this.pos.y += this.newLocation.y;
         
-        newLocation.x = 0;
-        newLocation.y = 0;
+        this.newLocation.x = 0;
+        this.newLocation.y = 0;
         
-        transPos.x = 0;
-        transPos.y = 0;
+        this.transPos.x = 0;
+        this.transPos.y = 0;
       }
     }
   }
@@ -681,9 +685,6 @@ class animal {
   display() {
       let scaleFactor = this.spawnAnimation();
       let scaledSize = this.size * scaleFactor;
-    
-      console.log(scaleFactor);
-      console.log(scaledSize);
 
       // Push the current matrix onto the stack
       push();
