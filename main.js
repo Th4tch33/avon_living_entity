@@ -28,34 +28,32 @@ let factory = [];
 let settlement = [];
 
 function preload() {
+  swanAsset[0] = loadImage("swan_water.png");
+  swanAsset[1] = loadImage("swan_air.png");
   
-  let path = "/assets/"
-
-  swanAsset[0] = loadImage(path + "swan_water.png");
-  swanAsset[1] = loadImage(path + "swan_air.png");
+  deerAsset[0] = loadImage("deer_stand.png");
+  deerAsset[1] = loadImage("deer_eat.png");
+  deerAsset[2] = loadImage("deer_jump.png");
   
-  deerAsset[0] = loadImage(path + "deer_stand.png");
-  deerAsset[1] = loadImage(path + "deer_eat.png");
-  deerAsset[2] = loadImage(path + "deer_jump.png");
+  bushAsset = loadImage("bush.png");
+  treeAsset = loadImage("tree.png");
   
-  bushAsset = loadImage(path + "bush.png");
-  treeAsset = loadImage(path + "tree.png");
+  factoryAsset = loadImage("factory.png");
+  smokeAsset = loadImage("smoke.png");
   
-  factoryAsset = loadImage(path + "factory.png");
-  smokeAsset = loadImage(path + "smoke.png");
+  houseAsset = loadImage("house.png");
+  cityhallAsset = loadImage("cityhall.png");
+  storefrontAsset = loadImage("storefront.png");
   
-  houseAsset = loadImage(path + "house.png");
-  cityhallAsset = loadImage(path + "cityhall.png");
-  storefrontAsset = loadImage(path + "storefront.png");
+  personAsset[0] = loadImage("person_standing.png");
+  personAsset[1] = loadImage("person_running.png");
+  personAsset[2] = loadImage("person_log01.png");
+  personAsset[3] = loadImage("person_log02.png");
+  personAsset[4] = loadImage("person_standing_water.png");
+  personAsset[5] = loadImage("person_running_water.png");
+  personAsset[6] = loadImage("person_log01_water.png");
+  personAsset[7] = loadImage("person_log02_water.png");
   
-  personAsset[0] = loadImage(path + "person_standing.png");
-  personAsset[1] = loadImage(path + "person_running.png");
-  personAsset[2] = loadImage(path + "person_log01.png");
-  personAsset[3] = loadImage(path + "person_log02.png");
-  personAsset[4] = loadImage(path + "person_standing_water.png");
-  personAsset[5] = loadImage(path + "person_running_water.png");
-  personAsset[6] = loadImage(path + "person_log01_water.png");
-  personAsset[7] = loadImage(path + "person_log02_water.png");
 }
 
 //!Program
