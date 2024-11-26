@@ -58,7 +58,7 @@ function preload() {
 
 //!Program
 function setup(){
-  createCanvas(1440, 810);
+  createCanvas(windowWidth, windowHeight);
   //fullScreen();
   frameRate(60);
 
