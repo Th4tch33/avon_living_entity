@@ -2,7 +2,7 @@
 
 let natureCounter = 0;
 let prodCounter = 0;
-let progCounter = 0;
+let totalTechPoints = 0;
 
 let bushAsset;
 let treeAsset;
@@ -76,16 +76,7 @@ function draw() {
   fill(52, 228, 234);
   rect(0, height / 2 - height / 8, width, height / 4);
   
-  //image(cleanRiverAsset, width / 2, height / 2, width, height);
-  
   //regionVisualizer();
-  let removeList = [];
-  /*
-  deer.forEach(function(element, index, array) {
-    deer.display();
-    deer.movementManager();
-  });*/
-
   swan.forEach(function(swan, index, array) {    
     swan.display();
     swan.movementManager();
@@ -96,12 +87,20 @@ function draw() {
     deer.movementManager();
   });
 
-  factory.forEach(function(factory, index, array) {    
-    factory.display();
+  factory.forEach(function(Factory, index, array) {    
+    Factory.display();
+
+    if(!Factory.state && !Factory.animating) {
+      factory.splice(index, 1);
+    }
   });
 
-  settlement.forEach(function(settlement, index, array) {    
-    settlement.display();
+  settlement.forEach(function(Settlement, index, array) {    
+    Settlement.display();
+
+    if(!Settlement.state && !Settlement.animating) {
+      settlement.splice(index, 1);
+    }
   });
 
   nature.forEach(function(Nature, index, array) {    
@@ -116,18 +115,22 @@ function draw() {
 }
 
 function scoreScreen() {
+  totalTechPoints = 0;
+
+  factory.forEach(function(factory) {
+    totalTechPoints += factory.techPoints;
+  })
+  
   fill(255);
   textSize(15);
-  text("Nature: " + natureCounter, 50, 50);
-  text("Prod: " + prodCounter, 50, 100);
-  text("Prog: " + progCounter, 50, 150);
+  text("Nature: " + nature.length, 50, 50);
+  text("Prod: " + factory.length, 50, 100);
+  text("Techpoints: " + totalTechPoints, 50, 150);
 }
 
 function keyPressed () {
   if(key == 'z' || key == 'Z') {
     spawnNature();
-    spawnDeer();
-    spawnSwan();
   }
   else if(key == 'x' || key == 'X') {
     spawnFactory();
@@ -181,7 +184,6 @@ function regionVisualizer() {
     }
   }
 }
-
 
 //!Checks
 function isTraversable(col, row) {
@@ -237,7 +239,7 @@ function spawnFactory() {
       random(0.5, 1),                              // Smoke Speed
       random(70, 100),                             // Smoke Height
       size * 1.5, 
-      true));                            // Proximity to Identical Buildings
+      true, 60 * 10, 60 * 10, 4));                            // Proximity to Identical Buildings
 
   buildingRangeCheckManager(factory, factory.length - 1);
   
@@ -294,12 +296,12 @@ function spawnSettlement() {
     new building(
       2,
       createVector(random(width), random(height)), // Position of the building
-      size,                                       // Size of the building image (width and height of the rendered image).
-      asset,                                      // The image asset representing the building visually.
+      size,                                        // Size of the building image (width and height of the rendered image).
+      asset,                                       // The image asset representing the building visually.
       createVector(0, 0),                          // Position of the smoke effect
-      random(0.5, 1),                             // Smoke Speed
-      random(50, 80),                             // Smoke Height
-      size * 1.5, true));                                      // Proximity to Identical Buildings);
+      random(0.5, 1),                              // Smoke Speed
+      random(50, 80),                              // Smoke Height
+      size * 1.5, true, 60 * 15, 60 * 15, 2));                                      // Proximity to Identical Buildings);
   
   buildingRangeCheckManager(settlement, settlement.length - 1);
   
@@ -416,10 +418,11 @@ function spawnAnimation(building) {
 
 function deathAnimation(building) {
   // Calculate the easing based on time and apply backout easing    
+  
   if (building.animating) {
     
     building.currentTime -= 1.0 / frameRate();  // Increment time based on frame rate
-    
+
     if (building.currentTime < 0) {
       building.currentTime = 0;  // Cap time at the easing duration
       building.animating = false;  // Stop animating once we reach the target time
@@ -438,8 +441,7 @@ function backOut(t) {
   return (--t) * t * ((s + 1) * t + s) + 1;
 }
 
-// building.js
-
+//building.js
 class building {  
   scaleFactor = 0;  // Scale factor for the rectangle
   easingDuration = 0.35;  // Duration of the easing animation (in seconds)
@@ -448,8 +450,10 @@ class building {
   
   workers = [];
   
+  techPoints = 0;
+
   //buildingType 0 = Nature 1 = Factory 2 = Residential
-  constructor(buildingType, pos, size, asset, smokePos, smokeSpeed, smokeHeight, closeness, state) {
+  constructor(buildingType, pos, size, asset, smokePos, smokeSpeed, smokeHeight, closeness, state, currentLife, lifeSpan, maintenance) {
     this.buildingType = buildingType;
     this.pos = pos;
     this.smokeSpeed = smokeSpeed;
@@ -459,8 +463,32 @@ class building {
     this.smokeHeight = smokeHeight;
     this.closeness = closeness;
     this.state = state;
+    this.currentLife = currentLife;
+    this.lifeSpan = lifeSpan;
+    this.maintenance = maintenance;
   }
   
+  lifeManager() {
+    if(this.buildingType > 0 && this.currentLife > 0) {
+      console.log(this.currentLife);
+      console.log(this.techPoints);
+      this.currentLife --;
+    }
+    
+    if(this.techPoints >= this.maintenance && this.currentLife <= 0) {
+      this.techPoints -= this.maintenance;
+      this.currentLife = this.lifeSpan;
+    }
+    else if(this.currentLife <= 0 && this.state) {
+      this.state = false;
+      this.scaleFactor = 1;
+      this.currentTime = 0.35;
+      this.animating = true; 
+      
+      this.item = true;
+    }
+  }
+
   xBoundaryTest() {
     return this.pos.x < 0 || this.pos.x > width;
   }
@@ -494,6 +522,7 @@ class building {
 
   display() {
     this.smokeManager();
+    this.lifeManager();
 
     animationManager(this);
     
@@ -536,7 +565,6 @@ class building {
 class animal {  
   
   assetTracker = 0;
-  
   scaleFactor = 0;  // Scale factor for the rectangle
   targetScale = 1;  // Final scale size
   easingDuration = 0.35;  // Duration of the easing animation (in seconds)
@@ -799,8 +827,7 @@ class animal {
   }
 }
 
-// person.js
-
+//person.js
 class person { 
   assetCounter = 0;
   
@@ -874,8 +901,11 @@ class person {
     if(nature.length > 0 && !this.item && this.personType == 1) {
       this.collect();
     }
-    else if(this.item && this.personType == 1) {
+    else if(this.item) {
       this.produce(building);
+    }
+    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 2) {
+      this.retreive();
     }
     else {
       this.walk();
@@ -911,6 +941,8 @@ class person {
       
       this.pos.x = factoryX;
       this.pos.y = factoryY;
+      
+      building.techPoints ++;
       
       factoryX = 0;
       factoryY = 0;
@@ -1027,6 +1059,77 @@ class person {
         this.item = true;
       }
     }
+  }
+
+  retreive() {    
+    
+    let closestResource = 0;
+  
+    let index = 0;
+    let activeIndex = 0;
+    
+    if(closestResource == 0) {
+      factory.forEach((resource, index,) => {
+        if(resource.techPoints > 0) {
+          closestResource = resource.pos;
+        }
+      })
+    }
+
+    factory.forEach((resource, index,) => {
+      if(resource.techPoints > 0 && dist(this.pos.x, this.pos.y, resource.pos.x, resource.pos.y) < dist(this.pos.x, this.pos.y, closestResource.x, closestResource.y)) {
+        closestResource.x = resource.pos.x;
+        closestResource.y = resource.pos.y;
+        
+        activeIndex = index
+      }
+      index ++;
+    });
+
+    this.newLocation.x = closestResource.x;
+    this.newLocation.y = closestResource.y;
+
+    let angle = atan2(this.newLocation.y - this.pos.y, this.newLocation.x - this.pos.x);
+      
+    let speedX = this.speed * cos(angle);
+    let speedY = this.speed * sin(angle);
+
+    if(speedX > 0 && this.pos.x < this.newLocation.x && !this.moving) {
+      this.moving = true;
+    }
+    
+    if(speedX < 0 && this.pos.x > this.newLocation.x && !this.moving) {
+      this.moving = true;
+    }
+
+    if(this.moving == true) {        
+      
+      if(speedX > 0) {
+        this.direction = false;
+      }
+      else {
+        this.direction = true;
+      }
+      
+      this.pos.x += speedX;
+      this.pos.y += speedY;
+      
+      if((speedX < 0 && this.pos.x < this.newLocation.x) || (speedX > 0 && this.pos.x > this.newLocation.x)) {
+        this.moving = false;
+        this.waitTimer = this.waitTime;
+        
+        this.pos.x = this.newLocation.x;
+        this.pos.y = this.newLocation.y;
+        
+        this.newLocation.x = 0;
+        this.newLocation.y = 0;
+        
+        factory[activeIndex].techPoints --;
+        
+        this.item = true;
+      }
+    }
+    
   }
 
   xBoundaryTest() {
