@@ -1,5 +1,4 @@
 // GBDA_412_Final_Code.js
-
 let natureCounter = 0;
 let prodCounter = 0;
 let totalTechPoints = 0;
@@ -1195,3 +1194,11 @@ Settlement needs 10 tech to be built
   Settlement needs 1 tech per 20 sec
 */
 
+let counter = 0; // Initialize the variable
+
+const button = document.getElementById('incrementButton');
+const valueDisplay = document.getElementById('value');
+
+button.addEventListener('click', () => {
+  spawnNature();
+});

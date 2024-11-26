@@ -1,4 +1,14 @@
 body {
     margin: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+p {
+    font-size: 18px;
 }
