@@ -52,27 +52,6 @@ function preload() {
   personAsset[5] = loadImage("person_running_water.png");
   personAsset[6] = loadImage("person_log01_water.png");
   personAsset[7] = loadImage("person_log02_water.png");
-  
-  partyConnect("wss://deepstream-server-1.herokuapp.com", "avonLivingEntity");
-  
-  // Create a shared variable (this will be the same across devices)
-  sharedData = {
-    natureTrigger: party.variable("natureTrigger", false),
-    factoryTrigger: party.variable("factoryTrigger", false),
-    settlementTrigger: party.variable("settlementTrigger", false)
-  };
-    
-  sharedData.natureTrigger.on("update", (value) => {
-    console.log("natureTrigger updated:", value);
-  });
-
-  sharedData.factoryTrigger.on("update", (value) => {
-    console.log("factoryTrigger updated:", value);
-  });
-
-  sharedData.settlementTrigger.on("update", (value) => {
-    console.log("settlementTrigger updated:", value);
-  });
 }
 
 //!Program
@@ -80,6 +59,10 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   //fullScreen();
   frameRate(60);
+
+  partyConnect("wss://deepstream-server-1.herokuapp.com", "avonLivingEntity");
+
+  shared = partyLoadShared("globals");
 
   if (shared.natureTrigger === undefined) {
     shared.natureTrigger = false; // Only one participant needs to initialize it
@@ -521,8 +504,6 @@ class building {
   
   lifeManager() {
     if(this.buildingType > 0 && this.currentLife > 0) {
-      console.log(this.currentLife);
-      console.log(this.techPoints);
       this.currentLife --;
     }
     

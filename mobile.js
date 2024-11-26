@@ -1,24 +1,19 @@
 function setup() {
     partyConnect("wss://deepstream-server-1.herokuapp.com", "avonLivingEntity");
+
+    shared = partyLoadShared("globals");
   
-    // Create a shared variable (this will be the same across devices)
-    sharedData = {
-        natureTrigger: party.variable("natureTrigger", false),
-        factoryTrigger: party.variable("factoryTrigger", false),
-        settlementTrigger: party.variable("settlementTrigger", false)
-    };
-        
-    sharedData.natureTrigger.on("update", (value) => {
-        console.log("natureTrigger updated:", value);
-    });
-
-    sharedData.factoryTrigger.on("update", (value) => {
-        console.log("factoryTrigger updated:", value);
-    });
-
-    sharedData.settlementTrigger.on("update", (value) => {
-        console.log("settlementTrigger updated:", value);
-    });
+    if (shared.natureTrigger === undefined) {
+      shared.natureTrigger = false; // Only one participant needs to initialize it
+    }
+  
+    if (shared.factoryTrigger === undefined) {
+      shared.factoryTrigger = false; // Only one participant needs to initialize it
+    }
+  
+    if (shared.settlementTrigger === undefined) {
+      shared.settlementTrigger = false; // Only one participant needs to initialize it
+    }
 }
 
 function draw() {
