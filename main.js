@@ -1236,7 +1236,6 @@ const natureButton = document.getElementById('natureButton');
 const factoryButton = document.getElementById('factoryButton');
 const settlementButton = document.getElementById('settlementButton');
 
-
 natureButton.addEventListener('click', () => {
   shared.natureTrigger = true;
 });
