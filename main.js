@@ -1238,13 +1238,13 @@ const settlementButton = document.getElementById('settlementButton');
 
 
 natureButton.addEventListener('click', () => {
-  spawnNature();
+  shared.natureTrigger = true;
 });
 
 factoryButton.addEventListener('click', () => {
-  spawnFactory();
+  shared.factoryTrigger = true;
 });
 
 settlementButton.addEventListener('click', () => {
-  spawnSettlement();
+  shared.settlementTrigger = true;
 });
