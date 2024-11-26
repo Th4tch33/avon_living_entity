@@ -53,16 +53,30 @@ function preload() {
   personAsset[6] = loadImage("person_log01_water.png");
   personAsset[7] = loadImage("person_log02_water.png");
   
-  partyConnect(
-		"wss://demoserver.p5party.org", 
-		"click_history"
-	);
+  partyConnect("wss://deepstream-server-1.herokuapp.com", "avonLivingEntity");
+  
+  // Create a shared variable (this will be the same across devices)
+  sharedData = {
+    natureTrigger: party.variable("natureTrigger", false),
+    factoryTrigger: party.variable("factoryTrigger", false),
+    settlementTrigger: party.variable("settlementTrigger", false)
+  };
+    
+  sharedData.natureTrigger.on("update", (value) => {
+    console.log("natureTrigger updated:", value);
+  });
 
-  shared = partyLoadShared("globals");
+  sharedData.factoryTrigger.on("update", (value) => {
+    console.log("factoryTrigger updated:", value);
+  });
+
+  sharedData.settlementTrigger.on("update", (value) => {
+    console.log("settlementTrigger updated:", value);
+  });
 }
 
 //!Program
-function setup(){
+function setup() {
   createCanvas(windowWidth, windowHeight);
   //fullScreen();
   frameRate(60);

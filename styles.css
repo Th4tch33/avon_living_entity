@@ -12,17 +12,3 @@ button {
 p {
     font-size: 18px;
 }
-
-/* Hide the canvas on mobile devices */
-@media (max-device-width: 768px) {
-    .p5Canvas {
-        display: none;
-    }
-}
-
-/* Make sure the canvas is visible on desktop */
-@media (min-device-width: 769px) {
-    .p5Canvas {
-        display: block;
-    }
-}
