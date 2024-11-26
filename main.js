@@ -1,6 +1,6 @@
 // GBDA_412_Final_Code.js
-let natureCounter = 0;
-let prodCounter = 0;
+let shared;
+
 let totalTechPoints = 0;
 
 let bushAsset;
@@ -53,6 +53,12 @@ function preload() {
   personAsset[6] = loadImage("person_log01_water.png");
   personAsset[7] = loadImage("person_log02_water.png");
   
+  partyConnect(
+		"wss://demoserver.p5party.org", 
+		"click_history"
+	);
+
+  shared = partyLoadShared("globals");
 }
 
 //!Program
@@ -60,6 +66,18 @@ function setup(){
   createCanvas(windowWidth, windowHeight);
   //fullScreen();
   frameRate(60);
+
+  if (shared.natureTrigger === undefined) {
+    shared.natureTrigger = false; // Only one participant needs to initialize it
+  }
+
+  if (shared.factoryTrigger === undefined) {
+    shared.factoryTrigger = false; // Only one participant needs to initialize it
+  }
+
+  if (shared.settlementTrigger === undefined) {
+    shared.settlementTrigger = false; // Only one participant needs to initialize it
+  }
 
   for(let i = 0; i < width * height; i++){
     occupancyGrid[i] = false;
@@ -70,12 +88,15 @@ function setup(){
 
 function draw() {
   background(198, 156, 114);
-  
+
   noStroke();
   fill(52, 228, 234);
   rect(0, height / 2 - height / 8, width, height / 4);
   
   //regionVisualizer();
+
+  spawnManger();
+
   swan.forEach(function(swan, index, array) {    
     swan.display();
     swan.movementManager();
@@ -113,6 +134,35 @@ function draw() {
   scoreScreen();
 }
 
+function keyPressed () {
+  if(key == 'z' || key == 'Z') {
+    shared.natureTrigger = true;
+  }
+  else if(key == 'x' || key == 'X') {
+    shared.factoryTrigger = true;
+  }
+  else if(key == 'c' || key == 'C') {
+    shared.settlementTrigger = true;
+  }
+}
+
+function spawnManger() {
+  if(shared.natureTrigger) {
+    spawnNature();
+    shared.natureTrigger = false;
+  }
+
+  if(shared.factoryTrigger) {
+    spawnFactory();
+    shared.factoryTrigger = false;
+  }
+
+  if(shared.settlementTrigger) {
+    spawnSettlement();
+    shared.settlementTrigger = false;
+  }
+}
+
 function scoreScreen() {
   totalTechPoints = 0;
 
@@ -125,18 +175,6 @@ function scoreScreen() {
   text("Nature: " + nature.length, 50, 50);
   text("Prod: " + factory.length, 50, 100);
   text("Techpoints: " + totalTechPoints, 50, 150);
-}
-
-function keyPressed () {
-  if(key == 'z' || key == 'Z') {
-    spawnNature();
-  }
-  else if(key == 'x' || key == 'X') {
-    spawnFactory();
-  }
-  else if(key == 'c' || key == 'C') {
-    spawnSettlement();
-  }
 }
 
 //!Initialization
@@ -1194,11 +1232,19 @@ Settlement needs 10 tech to be built
   Settlement needs 1 tech per 20 sec
 */
 
-let counter = 0; // Initialize the variable
+const natureButton = document.getElementById('natureButton');
+const factoryButton = document.getElementById('factoryButton');
+const settlementButton = document.getElementById('settlementButton');
 
-const button = document.getElementById('incrementButton');
-const valueDisplay = document.getElementById('value');
 
-button.addEventListener('click', () => {
+natureButton.addEventListener('click', () => {
   spawnNature();
+});
+
+factoryButton.addEventListener('click', () => {
+  spawnFactory();
+});
+
+settlementButton.addEventListener('click', () => {
+  spawnSettlement();
 });
