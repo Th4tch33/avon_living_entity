@@ -358,8 +358,35 @@ function spawnNature() {
 }
 
 function spawnSettlement() {
+  let usedTech = 0;
 
+  if(totalTechPoints >= 2) {
 
+    for (let index = 0; index < factory.length; index++) {
+      if(factory[index].techPoints >= 2) {
+        if(usedTech == 0) {
+          factory[index].techPoints -= 2;
+          usedTech += 2;
+        }
+        else if(usedTech == 1) {
+          factory[index].techPoints --;
+          usedTech ++;
+        }
+        
+      }
+      else if (factory[index].techPoints == 1) {
+        factory[index].techPoints --;
+        usedTech ++;
+      }
+      
+      // Some condition to break
+      if (usedTech == 2) {
+        break;  // Exit the loop when condition is met
+      }
+    }
+  }
+
+  if(usedTech == 2) {
     let size = 95;
   
     let asset;
@@ -390,8 +417,8 @@ function spawnSettlement() {
         size * 1.5, true, 60 * 15, 60 * 15, 2));                                      // Proximity to Identical Buildings);
     
     buildingRangeCheckManager(settlement, settlement.length - 1);
-  
-  
+  }
+ 
   
   //allEntities.push(settlement.get(settlement.createCanvas() - 1));
 }
@@ -535,9 +562,9 @@ class building {
   easingDuration = 0.35;  // Duration of the easing animation (in seconds)
   currentTime = 0;  // Time tracker for the animation
   animating = true;  // Flag to track if the animation is running
-  
+
   workers = [];
-  
+
   techPoints = 0;
 
   //buildingType 0 = Nature 1 = Factory 2 = Residential
@@ -555,12 +582,12 @@ class building {
     this.lifeSpan = lifeSpan;
     this.maintenance = maintenance;
   }
-  
+
   lifeManager() {
     if(this.buildingType > 0 && this.currentLife > 0) {
       this.currentLife --;
     }
-    
+
     if(this.techPoints >= this.maintenance && this.currentLife <= 0) {
       this.techPoints -= this.maintenance;
       this.currentLife = this.lifeSpan;
@@ -570,7 +597,7 @@ class building {
       this.scaleFactor = 1;
       this.currentTime = 0.35;
       this.animating = true; 
-      
+
       this.item = true;
     }
   }
@@ -578,19 +605,19 @@ class building {
   xBoundaryTest() {
     return this.pos.x < 0 || this.pos.x > width;
   }
-  
+
   yBoundaryTest() {
     return this.pos.y < height * 0.1 || this.pos.y > height;
   }
-  
+
   smokeManager() {    
     if(this.buildingType == 1) {
       this.smokePos.y -= this.smokeSpeed;
-    
+
       if(this.smokePos.y < this.pos.y - this.smokeHeight) {
         this.smokePos.y = this.pos.y;
       }
-      
+
       if(this.pos.y - this.smokePos.y < this.smokeHeight * 0.2) {    
         tint(255, (this.pos.y - this.smokePos.y) * 255 / 20);
       }
@@ -600,7 +627,7 @@ class building {
       else {
         tint(255, 255);
       }
-      
+
       image(smokeAsset, this.smokePos.x - this.size / 2, this.smokePos.y - this.size, this.size, this.size);
       tint(255, 255);
     }
@@ -611,20 +638,23 @@ class building {
     this.lifeManager();
 
     animationManager(this);
-    
+
     let scaledSize = this.size * this.scaleFactor;
 
     image(this.asset, this.pos.x - scaledSize / 2, this.pos.y - scaledSize, scaledSize, scaledSize); // Centering the image by using negative size/2
-    
+
     if(this.buildingType == 1 || this.buildingType == 2) {
       this.childManager(this.workers, this.buildingType);
     }
+
+    textAlign(CENTER);
+    text(this.techPoints, this.pos.x, this.pos.y);
   }
-  
+
   childManager(person, buildingType) {
     if(this.buildingType == 1) {
       let maxPeople = 3;
-    
+
       if(person.length < maxPeople) {
         for(let i = person.length; i < maxPeople; i++) {
           spawnPerson(this.pos.x, this.pos.y, person, 1);
@@ -633,7 +663,7 @@ class building {
     }
     else {
       let maxPeople = 1;
-    
+
       if(person.length < maxPeople) {
         for(let i = person.length; i < maxPeople; i++) {
           spawnPerson(this.pos.x, this.pos.y, person, 0);
@@ -916,7 +946,7 @@ class animal {
 //person.js
 class person { 
   assetCounter = 0;
-  
+
   scaleFactor = 0;  // Scale factor for the rectangle
   targetScale = 1;  // Final scale size
   easingDuration = 0.35;  // Duration of the easing animation (in seconds)
@@ -937,7 +967,7 @@ class person {
     this.asset = asset;
     this.direction = direction;
   }
-  
+
   display() {
     let scaleFactor = this.spawnAnimation();
     let scaledSize = this.size * this.scaleFactor;
@@ -949,14 +979,14 @@ class person {
       else if (this.assetCounter % 2 == 0 && frameCount % 4 == 0) {
         this.assetCounter ++;
       }
-      
+
       if(!isTraversable(Math.round(this.pos.x), Math.round(this.pos.y)) && this.assetCounter < 4) {
         this.assetCounter += 4;
       }
       else if(isTraversable(Math.round(this.pos.x), Math.round(this.pos.y)) && this.assetCounter > 3) {
         this.assetCounter -= 4;
       }
-      
+
       if(this.item && (this.assetCounter == 0 || this.assetCounter == 1 || this.assetCounter == 4 || this.assetCounter == 5)) {
         this.assetCounter += 2;
       }
@@ -966,7 +996,7 @@ class person {
     }
     else {
       this.assetCounter = 0;
-      
+
       if(!isTraversable(Math.round(this.pos.x), Math.round(this.pos.y)) && this.assetCounter <= 3) {
         this.assetCounter += 4;
       }
@@ -974,15 +1004,15 @@ class person {
 
     push();
       translate(this.pos.x, this.pos.y);
-  
+
       if(this.direction == false) {
           scale(-1, 1);
       }
-  
+
       image(this.asset[this.assetCounter], -scaledSize / 2, -scaledSize, scaledSize, scaledSize); // Centering the image by using negative size/2
     pop();
   }
-  
+
   movementManager(building) {    
     if(nature.length > 0 && !this.item && this.personType == 1) {
       this.collect();
@@ -990,59 +1020,59 @@ class person {
     else if(this.item) {
       this.produce(building);
     }
-    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 1) {
+    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 2) {
       this.retreive();
     }
     else {
       this.walk();
     }
   }
-  
+
   produce(building) {
     this.moving = true;
 
     let factoryX = building.pos.x;
     let factoryY = building.pos.y;
-    
+
     let angle = atan2(factoryY - this.pos.y, factoryX - this.pos.x);
-    
+
     let speedX = this.speed * cos(angle);
     let speedY = this.speed * sin(angle);
-    
+
     if(speedX > 0) {
       this.direction = false;
     }
     else {
       this.direction = true;
     }
-    
+
     this.pos.x += speedX;
     this.pos.y += speedY;
-    
+
     if((speedX < 0 && this.pos.x < factoryX) || (speedX > 0 && this.pos.x > factoryX)) {
       this.moving = false;
       this.waitTimer = this.waitTime;
-      
+
       this.item = false;
-      
+
       this.pos.x = factoryX;
       this.pos.y = factoryY;
-      
+
       building.techPoints ++;
-      
+
       factoryX = 0;
       factoryY = 0;
     }
   }
-  
+
   newLocationFinder() {    
     if (!this.moving && this.waitTimer == 0) {
       this.moving = true;
-      
+
       // Generate a random location
       this.newLocation.x = random(-this.range / 2, this.range / 2) + this.pos.x;
       this.newLocation.y = random(-this.range / 2, this.range / 2) + this.pos.y;
-      
+
       while (this.xBoundaryTest() || this.yBoundaryTest()) {  
         this.newLocation.x = random(-this.range / 2, this.range / 2) + this.pos.x;
         this.newLocation.y = random(-this.range / 2, this.range / 2) + this.pos.y;
@@ -1052,13 +1082,13 @@ class person {
       this.waitTimer--;
     }
   }
-  
+
   walk() {
     this.newLocationFinder();
 
     if(this.moving == true) {        
       let angle = atan2(this.newLocation.y - this.pos.y, this.newLocation.x - this.pos.x);
-      
+
       let speedX = this.speed * cos(angle);
       let speedY = this.speed * sin(angle);
 
@@ -1068,92 +1098,91 @@ class person {
       else {
         this.direction = true;
       }
-      
+
       this.pos.x += speedX;
       this.pos.y += speedY;
 
       if((speedX < 0 && this.pos.x < this.newLocation.x) || (speedX > 0 && this.pos.x > this.newLocation.x)) {
         this.moving = false;
         this.waitTimer = this.waitTime;
-        
+
         this.pos.x = this.newLocation.x;
         this.pos.y = this.newLocation.y;
       }
     }
   }
-  
+
   collect() {    
     let closestResource = createVector(nature[0].pos.x, nature[0].pos.y);
-  
+
     let index = 0;
     let activeIndex = 0;
-    
+
     nature.forEach((resource, index, array) => {      
       if(dist(this.pos.x, this.pos.y, resource.pos.x, resource.pos.y) < dist(this.pos.x, this.pos.y, closestResource.x, closestResource.y) && resource.state) {
         closestResource.x = resource.pos.x;
         closestResource.y = resource.pos.y;
-        
+
         activeIndex = index;
       }
-      
+
       index ++;
     });
-    
+
     this.newLocation.x = closestResource.x;
     this.newLocation.y = closestResource.y;
-    
+
     let angle = atan2(this.newLocation.y - this.pos.y, this.newLocation.x - this.pos.x);
-      
+
     let speedX = this.speed * cos(angle);
     let speedY = this.speed * sin(angle);
 
     if(speedX > 0 && this.pos.x < this.newLocation.x && !this.moving) {
       this.moving = true;
     }
-    
+
     if(speedX < 0 && this.pos.x > this.newLocation.x && !this.moving) {
       this.moving = true;
     }
 
     if(this.moving == true) {        
-      
+
       if(speedX > 0) {
         this.direction = false;
       }
       else {
         this.direction = true;
       }
-      
+
       this.pos.x += speedX;
       this.pos.y += speedY;
-      
+
       if((speedX < 0 && this.pos.x < this.newLocation.x) || (speedX > 0 && this.pos.x > this.newLocation.x)) {
         this.moving = false;
         this.waitTimer = this.waitTime;
-        
+
         this.pos.x = this.newLocation.x;
         this.pos.y = this.newLocation.y;
-        
+
         this.newLocation.x = 0;
         this.newLocation.y = 0;
-        
+
         nature[activeIndex].state = false;
         nature[activeIndex].scaleFactor = 1;
         nature[activeIndex].currentTime = 0.35;
         nature[activeIndex].animating = true; 
-        
+
         this.item = true;
       }
     }
   }
 
   retreive() {    
-    
     let closestResource = 0;
-  
+
     let index = 0;
     let activeIndex = 0;
-    
+
     if(closestResource == 0) {
       factory.forEach((resource, index,) => {
         if(resource.techPoints > 0) {
@@ -1166,7 +1195,7 @@ class person {
       if(resource.techPoints > 0 && dist(this.pos.x, this.pos.y, resource.pos.x, resource.pos.y) < dist(this.pos.x, this.pos.y, closestResource.x, closestResource.y)) {
         closestResource.x = resource.pos.x;
         closestResource.y = resource.pos.y;
-        
+
         activeIndex = index
       }
       index ++;
@@ -1176,52 +1205,51 @@ class person {
     this.newLocation.y = closestResource.y;
 
     let angle = atan2(this.newLocation.y - this.pos.y, this.newLocation.x - this.pos.x);
-      
+
     let speedX = this.speed * cos(angle);
     let speedY = this.speed * sin(angle);
 
     if(speedX > 0 && this.pos.x < this.newLocation.x && !this.moving) {
       this.moving = true;
     }
-    
+
     if(speedX < 0 && this.pos.x > this.newLocation.x && !this.moving) {
       this.moving = true;
     }
 
     if(this.moving == true) {        
-      
+
       if(speedX > 0) {
         this.direction = false;
       }
       else {
         this.direction = true;
       }
-      
+
       this.pos.x += speedX;
       this.pos.y += speedY;
-      
+
       if((speedX < 0 && this.pos.x < this.newLocation.x) || (speedX > 0 && this.pos.x > this.newLocation.x)) {
         this.moving = false;
         this.waitTimer = this.waitTime;
-        
+
         this.pos.x = this.newLocation.x;
         this.pos.y = this.newLocation.y;
-        
+
         this.newLocation.x = 0;
         this.newLocation.y = 0;
-        
+
         factory[activeIndex].techPoints --;
-        
+
         this.item = true;
       }
     }
-    
   }
 
   xBoundaryTest() {
     return this.newLocation.x < 0 || this.newLocation.x > width;
   }
-  
+
   yBoundaryTest() {
     return this.newLocation.y < 0 || this.newLocation.y > height;
   }
@@ -1230,19 +1258,19 @@ class person {
     // Calculate the easing based on time and apply backout easing
     if (this.animating) {
       this.currentTime += 1.0 / frameRate();  // Increment time based on frame rate
-      
+
       if (this.currentTime > this.easingDuration) {
         this.currentTime = this.easingDuration;  // Cap time at the easing duration
         this.animating = false;  // Stop animating once we reach the target time
       } 
-  
+
       // Calculate the backout easing value (backout(t))
       this.scaleFactor = backOut(this.currentTime / this.easingDuration);
     }
-  
+
     return this.scaleFactor;
   }
-  
+
   // Backout easing function
   backOut(t) {
     let s = 1.70158;  // Overshoot value (you can tweak this for more/less overshoot)
