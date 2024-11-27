@@ -84,7 +84,7 @@ function setup() {
 }
 
 function draw() {
-  background(198, 156, 114);
+  background(186, 223, 168);
 
   noStroke();
   fill(52, 228, 234);
@@ -128,7 +128,7 @@ function draw() {
     }
   });
   
-  scoreScreen();
+  //scoreScreen();
 }
 
 function keyPressed () {
@@ -140,6 +140,24 @@ function keyPressed () {
   }
   else if(key == 'c' || key == 'C') {
     shared.settlementTrigger = true;
+  }
+  else if(key == 'v' || key == 'V') {
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+    spawnDeer();
+
+    spawnSwan();
+    spawnSwan();
+    spawnSwan();
+    spawnSwan();
+    spawnSwan();
   }
 }
 
@@ -1195,37 +1213,6 @@ class person {
     return (--t) * t * ((s + 1) * t + s) + 1;
   }
 }
-
-
-/*
-Final Features:
-1. River Progress score
-2. Entity Interaction
-3. All entities sorting system
-
-We no longer need an entity management system because each entity should manage itself like an ecosystem.
-The concept of this project is a living entity/ecosystem.
-
-RIVER PROGRESS SCORE (RPS)
-
-Components:
-N = Nature
-F = Factories
-S = Settlements
-
-RPS = 100 = N + F + S = 40 + 20 + 40
-
-Nature requires 3 presses
-
-  Deer are a 1:2 with N
-  Swans are 1:4 with N
-
-Factory unlocks at minimum 10 N
-  Factory needs to produce 1 tech per 20 sec
-  
-Settlement needs 10 tech to be built
-  Settlement needs 1 tech per 20 sec
-*/
 
 const natureButton = document.getElementById('natureButton');
 const factoryButton = document.getElementById('factoryButton');
