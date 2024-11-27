@@ -275,12 +275,11 @@ function isTraversable(col, row) {
 
 function buildingRangeCheckManager(array, index) {
   for(let i = 0; i < array.length; i++) {
-    
     while((!isTraversable(Math.round(array[i].pos.x), Math.round(array[i].pos.y)) || buildingRangeCheck(array, index)) || array[i].xBoundaryTest() || array[i].yBoundaryTest()) {     
       array[index].pos.x = random(width);
       array[index].pos.y = random(height);
     }
-    
+
     if(array[index].buildingType == 1) {
       array[index].smokePos.x = array[index].pos.x;
       array[index].smokePos.y = array[index].pos.y;
@@ -293,17 +292,17 @@ function buildingRangeCheck(array, currentBuilding) {
 
   for(let i = 0; i < array.length; i++) {
     if(currentBuilding != i) {
-      
+
       let dist = sqrt(pow(array[i].pos.x - array[currentBuilding].pos.x, 2) + pow(array[i].pos.y - array[currentBuilding].pos.y, 2));
-      
+
       if(dist <= array[currentBuilding].closeness) {
         inRange = true;
-        
+
         break;
       }
     }
   }
-  
+
   return inRange;
 }
   
@@ -324,22 +323,20 @@ function spawnFactory() {
         true, 60 * 10, 60 * 10, 4));                            // Proximity to Identical Buildings
   
     buildingRangeCheckManager(factory, factory.length - 1);
+  
   }
-  
-  
-  //allEntities.push(factory.get(factory.length - 1));
 }
 
 function spawnNature() {
   let size = 55;
   let asset = bushAsset;
     
-    let natureAsset = parseInt(random(1, 4));
-    
-    if(natureAsset == 2 || natureAsset == 3) {
-      asset = treeAsset;
-      size = 125;
-    }
+  let natureAsset = parseInt(random(1, 4));
+  
+  if(natureAsset == 2 || natureAsset == 3) {
+    asset = treeAsset;
+    size = 125;
+  }
   
   nature.push(
     new building(
@@ -353,15 +350,12 @@ function spawnNature() {
       size / 2, true));                                      // Proximity to Identical Buildings);
   
   buildingRangeCheckManager(nature, nature.length - 1);
-  
-  //allEntities.push(nature.get(nature.length - 1));
 }
 
 function spawnSettlement() {
   let usedTech = 0;
 
   if(totalTechPoints >= 2) {
-
     for (let index = 0; index < factory.length; index++) {
       if(factory[index].techPoints >= 2) {
         if(usedTech == 0) {
@@ -388,10 +382,10 @@ function spawnSettlement() {
 
   if(usedTech == 2) {
     let size = 95;
-  
+
     let asset;
     let settlementAsset = parseInt(random(1, 3));
-    
+
     if(settlement.length == 0) {
       asset = cityhallAsset;
       size = 140;
@@ -404,7 +398,7 @@ function spawnSettlement() {
         asset = storefrontAsset;
       }
     }
-    
+
     settlement.push(
       new building(
         2,
@@ -415,12 +409,9 @@ function spawnSettlement() {
         random(0.5, 1),                              // Smoke Speed
         random(50, 80),                              // Smoke Height
         size * 1.5, true, 60 * 15, 60 * 15, 2));                                      // Proximity to Identical Buildings);
-    
+
     buildingRangeCheckManager(settlement, settlement.length - 1);
   }
- 
-  
-  //allEntities.push(settlement.get(settlement.createCanvas() - 1));
 }
 
 function spawnSwan() {
@@ -585,6 +576,8 @@ class building {
 
   lifeManager() {
     if(this.buildingType > 0 && this.currentLife > 0) {
+      console.log(this.currentLife);
+      console.log(this.techPoints);
       this.currentLife --;
     }
 
@@ -646,9 +639,6 @@ class building {
     if(this.buildingType == 1 || this.buildingType == 2) {
       this.childManager(this.workers, this.buildingType);
     }
-
-    textAlign(CENTER);
-    text(this.techPoints, this.pos.x, this.pos.y);
   }
 
   childManager(person, buildingType) {
