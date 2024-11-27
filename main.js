@@ -193,7 +193,7 @@ function scoreScreen() {
 }
 
 function riverProgressManager() {
-  riverProgress = Math.min(nature.length, 40) + Math.min(factory.length * 4, 20) + Math.min(settlement.length * 4, 40);
+  riverProgress = Math.min(nature.length, 40) + Math.min(factory.length * 20, 20) + Math.min(settlement.length * 4, 40);
 }
 
 function spawnManger() {
@@ -648,7 +648,7 @@ class building {
 
   childManager(person) {
     if(this.buildingType == 1) {
-      let maxPeople = 3;
+      let maxPeople = 5;
 
       if(person.length < maxPeople) {
         for(let i = person.length; i < maxPeople; i++) {
