@@ -1,34 +1,47 @@
-body {
-    margin: 0;
-    overflow-x: hidden;
-
+* {
     font-family: "Lexend", sans-serif;
     font-style: normal;
     font-optical-sizing: auto;
 }
 
+body {
+    margin: 0;
+    overflow-x: hidden;
+}
+
 img {
     display: block; /* Makes the image a block element */
     margin: 0 auto; /* Centers it horizontally */
-    width: 40vw; /* Optional: Makes the image responsive */
+    width: 70vw; /* Optional: Makes the image responsive */
 
-    margin-top: 15vh;
+    margin-top: 3vh;
+}
+
+p {
+    font-size: 1em;
+    font-weight: 300;
 }
 
 .buttonContainer {
     display: grid;
     grid-template-columns: 1fr; /* A single column spanning the width */
-    gap: 15vh; /* Adds space between rows */
+    gap: 3vh; /* Adds space between rows */
 
-    margin: 15vh auto;
+    margin: 3vh auto;
+}
+
+.buttonWrapper {
+    width: 70vw;
+    margin: auto;
 }
 
 button {
-    padding: 10vh 10vw;
-    margin: 0 30vw;  
+    width: 100%;
+    height: 8vh;
+    margin: 0 auto;  
 
-    font-size: 32px;
-    font-weight: 600;
+    font-size: 1.5em;
+    font-weight: 500;
 
     color: white; /* Text color */
     background-color: #007BFF; /* Background color */
@@ -41,15 +54,15 @@ button:hover {
     background-color: #0056b3; /* Darker background on hover */
 }
 
-.natureButton {
+#natureButton {
     background-color: #79D44D;
 }
 
-.factoryButton {
+#factoryButton {
     background-color: #404040;
 }
 
-.settlementButton {
+#settlementButton {
     background-color: #1F6BB3;
 }
   

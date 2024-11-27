@@ -1,4 +1,5 @@
 function setup() {
+  createCanvas(1, 1);
     partyConnect("wss://deepstream-server-1.herokuapp.com", "avonLivingEntity");
 
     shared = partyLoadShared("globals");
