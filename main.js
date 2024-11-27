@@ -309,7 +309,7 @@ function buildingRangeCheck(array, currentBuilding) {
 function spawnFactory() {
   let size = 250;
 
-  if(factory.length < 4) {
+  if(factory.length < 1) {
     factory.push(
       new building(
         1,
@@ -408,7 +408,7 @@ function spawnSettlement() {
         createVector(0, 0),                          // Position of the smoke effect
         random(0.5, 1),                              // Smoke Speed
         random(50, 80),                              // Smoke Height
-        size * 1.5, true, 60 * 15, 60 * 15, 2));                                      // Proximity to Identical Buildings);
+        size * 1.5, true, 60 * 15, 60 * 15, 1));                                      // Proximity to Identical Buildings);
 
     buildingRangeCheckManager(settlement, settlement.length - 1);
   }
@@ -576,8 +576,6 @@ class building {
 
   lifeManager() {
     if(this.buildingType > 0 && this.currentLife > 0) {
-      console.log(this.currentLife);
-      console.log(this.techPoints);
       this.currentLife --;
     }
 
@@ -630,6 +628,13 @@ class building {
     this.smokeManager();
     this.lifeManager();
 
+    fill(0);
+    textAlign(CENTER);
+    textSize(15);
+    if(this.buildingType > 0) {
+      text("Materials: " + this.techPoints, this.pos.x, this.pos.y + 20);
+    }
+
     animationManager(this);
 
     let scaledSize = this.size * this.scaleFactor;
@@ -637,11 +642,11 @@ class building {
     image(this.asset, this.pos.x - scaledSize / 2, this.pos.y - scaledSize, scaledSize, scaledSize); // Centering the image by using negative size/2
 
     if(this.buildingType == 1 || this.buildingType == 2) {
-      this.childManager(this.workers, this.buildingType);
+      this.childManager(this.workers);
     }
   }
 
-  childManager(person, buildingType) {
+  childManager(person) {
     if(this.buildingType == 1) {
       let maxPeople = 3;
 
@@ -651,7 +656,7 @@ class building {
         }
       }
     }
-    else {
+    else if(this.buildingType == 2) {
       let maxPeople = 1;
 
       if(person.length < maxPeople) {
@@ -1010,7 +1015,7 @@ class person {
     else if(this.item) {
       this.produce(building);
     }
-    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 2) {
+    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 1) {
       this.retreive();
     }
     else {
@@ -1105,7 +1110,6 @@ class person {
   collect() {    
     let closestResource = createVector(nature[0].pos.x, nature[0].pos.y);
 
-    let index = 0;
     let activeIndex = 0;
 
     nature.forEach((resource, index, array) => {      
@@ -1181,14 +1185,13 @@ class person {
       })
     }
 
-    factory.forEach((resource, index,) => {
+    factory.forEach((resource, index) => {
       if(resource.techPoints > 0 && dist(this.pos.x, this.pos.y, resource.pos.x, resource.pos.y) < dist(this.pos.x, this.pos.y, closestResource.x, closestResource.y)) {
         closestResource.x = resource.pos.x;
         closestResource.y = resource.pos.y;
 
         activeIndex = index
       }
-      index ++;
     });
 
     this.newLocation.x = closestResource.x;
