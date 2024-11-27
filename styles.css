@@ -44,14 +44,13 @@ button {
     font-weight: 500;
 
     color: white; /* Text color */
-    background-color: #007BFF; /* Background color */
     border: none; /* Removes border */
     border-radius: 10px; /* Rounded corners */
     cursor: pointer; /* Changes cursor to pointer on hover */
 }
 
 button:hover {
-    background-color: #0056b3; /* Darker background on hover */
+    background-color: #ffce1d; /* Darker background on hover */
 }
 
 #natureButton {

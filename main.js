@@ -6,6 +6,8 @@ let totalTechPoints = 0;
 let bushAsset;
 let treeAsset;
 
+let riverProgress = 0;
+
 let personAsset = [];
 let deerAsset = [];
 let swanAsset = [];
@@ -127,8 +129,10 @@ function draw() {
       nature.splice(index, 1);
     }
   });
+
+  riverProgressManager();
   
-  //scoreScreen();
+  scoreScreen();
 }
 
 function keyPressed () {
@@ -142,29 +146,68 @@ function keyPressed () {
     shared.settlementTrigger = true;
   }
   else if(key == 'v' || key == 'V') {
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-    spawnDeer();
-
-    spawnSwan();
-    spawnSwan();
-    spawnSwan();
-    spawnSwan();
-    spawnSwan();
   }
+}
+
+function scoreScreen() {
+  totalTechPoints = 0;
+
+  factory.forEach(function(factory) {
+    totalTechPoints += factory.techPoints;
+  })
+
+  fill(255);
+  rect(0, 0, width, 50);
+
+  textSize(20);
+  textStyle(BOLD);
+  
+  textAlign(LEFT);
+  fill(121, 212, 77);
+  text("Nature: " + nature.length, 50, 30);
+  
+  textAlign(CENTER);
+  fill(64, 64, 64);
+  text("Factories: " + factory.length, width / 3, 30);
+  
+  textAlign(CENTER);
+  fill(31, 107, 179);
+  text("Settlements: " + settlement.length, width * 0.66, 30);
+  
+  textAlign(RIGHT);
+  fill(64, 19, 4);
+  text("Material: " + totalTechPoints, width - 50, 30);
+
+  fill(31, 107, 179);
+  rect(width / 3, height - 70, map(riverProgress, 0, 100, 0, width / 3, true), 40);
+
+  noFill();
+  stroke(255);
+  strokeWeight(3);
+  rect(width / 3, height - 70, width / 3, 40);
+
+  noStroke();
+  fill(31, 107, 179);
+  textAlign(CENTER);
+  text("Progress Bar", width / 2, height - 90);
+}
+
+function riverProgressManager() {
+  riverProgress = Math.min(nature.length, 40) + Math.min(factory.length * 4, 20) + Math.min(settlement.length * 4, 40);
 }
 
 function spawnManger() {
   if(shared.natureTrigger) {
     spawnNature();
     shared.natureTrigger = false;
+
+    if(parseInt(random(10)) == 1 && deer.length < 30) {
+      spawnSwan();
+    }
+
+    if(parseInt(random(5)) == 1 && swan.length < 15) {
+      spawnDeer();
+    }
   }
 
   if(shared.factoryTrigger) {
@@ -176,20 +219,6 @@ function spawnManger() {
     spawnSettlement();
     shared.settlementTrigger = false;
   }
-}
-
-function scoreScreen() {
-  totalTechPoints = 0;
-
-  factory.forEach(function(factory) {
-    totalTechPoints += factory.techPoints;
-  })
-  
-  fill(255);
-  textSize(15);
-  text("Nature: " + nature.length, 50, 50);
-  text("Prod: " + factory.length, 50, 100);
-  text("Techpoints: " + totalTechPoints, 50, 150);
 }
 
 //!Initialization
@@ -281,19 +310,22 @@ function buildingRangeCheck(array, currentBuilding) {
 function spawnFactory() {
   let size = 250;
 
-  factory.push(
-    new building(
-      1,
-      createVector(random(width), random(height)), // Position of the building
-      size,                                        // Size of the building image (width and height of the rendered image).
-      factoryAsset,                                // The image asset representing the building visually.
-      createVector(0, 0),                          // Position of the smoke effect
-      random(0.5, 1),                              // Smoke Speed
-      random(70, 100),                             // Smoke Height
-      size * 1.5, 
-      true, 60 * 10, 60 * 10, 4));                            // Proximity to Identical Buildings
-
-  buildingRangeCheckManager(factory, factory.length - 1);
+  if(factory.length < 4) {
+    factory.push(
+      new building(
+        1,
+        createVector(random(width), random(height)), // Position of the building
+        size,                                        // Size of the building image (width and height of the rendered image).
+        factoryAsset,                                // The image asset representing the building visually.
+        createVector(0, 0),                          // Position of the smoke effect
+        random(0.5, 1),                              // Smoke Speed
+        random(70, 100),                             // Smoke Height
+        size * 1.5, 
+        true, 60 * 10, 60 * 10, 4));                            // Proximity to Identical Buildings
+  
+    buildingRangeCheckManager(factory, factory.length - 1);
+  }
+  
   
   //allEntities.push(factory.get(factory.length - 1));
 }
@@ -326,36 +358,40 @@ function spawnNature() {
 }
 
 function spawnSettlement() {
-  let size = 95;
+
+
+    let size = 95;
   
-  let asset;
-  let settlementAsset = parseInt(random(1, 3));
-  
-  if(settlement.length == 0) {
-    asset = cityhallAsset;
-    size = 140;
-  }
-  else {
-    if(settlementAsset == 1) {
-      asset = houseAsset;
+    let asset;
+    let settlementAsset = parseInt(random(1, 3));
+    
+    if(settlement.length == 0) {
+      asset = cityhallAsset;
+      size = 140;
     }
     else {
-      asset = storefrontAsset;
+      if(settlementAsset == 1) {
+        asset = houseAsset;
+      }
+      else {
+        asset = storefrontAsset;
+      }
     }
-  }
+    
+    settlement.push(
+      new building(
+        2,
+        createVector(random(width), random(height)), // Position of the building
+        size,                                        // Size of the building image (width and height of the rendered image).
+        asset,                                       // The image asset representing the building visually.
+        createVector(0, 0),                          // Position of the smoke effect
+        random(0.5, 1),                              // Smoke Speed
+        random(50, 80),                              // Smoke Height
+        size * 1.5, true, 60 * 15, 60 * 15, 2));                                      // Proximity to Identical Buildings);
+    
+    buildingRangeCheckManager(settlement, settlement.length - 1);
   
-  settlement.push(
-    new building(
-      2,
-      createVector(random(width), random(height)), // Position of the building
-      size,                                        // Size of the building image (width and height of the rendered image).
-      asset,                                       // The image asset representing the building visually.
-      createVector(0, 0),                          // Position of the smoke effect
-      random(0.5, 1),                              // Smoke Speed
-      random(50, 80),                              // Smoke Height
-      size * 1.5, true, 60 * 15, 60 * 15, 2));                                      // Proximity to Identical Buildings);
   
-  buildingRangeCheckManager(settlement, settlement.length - 1);
   
   //allEntities.push(settlement.get(settlement.createCanvas() - 1));
 }
@@ -954,7 +990,7 @@ class person {
     else if(this.item) {
       this.produce(building);
     }
-    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 2) {
+    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 1) {
       this.retreive();
     }
     else {
