@@ -36,3 +36,11 @@ factoryButton.addEventListener('click', () => {
 settlementButton.addEventListener('click', () => {
   shared.settlementTrigger = true;
 });
+
+if(shared.factoryLength >= 4) {
+  document.getElementById("factoryButton").textContent = "Max. 4 Factories";
+}
+else {
+  ocument.getElementById("factoryButton").textContent = "Add +1 Factory";
+
+}

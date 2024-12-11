@@ -131,6 +131,10 @@ function setup() {
     shared.settlementTrigger = false; // Only one participant needs to initialize it
   }
 
+  if (shared.factoryLength === undefined) {
+    shared.factoryLength = 0; // Only one participant needs to initialize it
+  }
+
   for(let i = 0; i < width * height; i++){
     occupancyGrid[i] = false;
   }
@@ -140,6 +144,8 @@ function setup() {
 
 function draw() {
   background(186, 223, 168);
+
+  shared.factoryLength = factory.length;
 
   noStroke();
   fill(52, 228, 234);
@@ -393,7 +399,7 @@ function buildingRangeCheck(array, currentBuilding) {
 function spawnFactory() {
   let size = 0.4;
 
-  if(factory.length < 3) {
+  if(factory.length < 4) {
     factory.push(
       new building(
         1,
