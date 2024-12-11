@@ -96,6 +96,14 @@ function draw() {
 
   spawnManger();
 
+  let tempTotalTechPoints = 0;
+
+  factory.forEach(function(factory) {
+    tempTotalTechPoints += factory.techPoints;
+  })
+
+  totalTechPoints = tempTotalTechPoints;
+
   swan.forEach(function(swan, index, array) {    
     swan.display();
     swan.movementManager();
@@ -146,15 +154,14 @@ function keyPressed () {
     shared.settlementTrigger = true;
   }
   else if(key == 'v' || key == 'V') {
+    frameRate(0);
+  }
+  else if(key == 'b' || key == 'B') {
+    frameRate(60);
   }
 }
 
 function scoreScreen() {
-  totalTechPoints = 0;
-
-  factory.forEach(function(factory) {
-    totalTechPoints += factory.techPoints;
-  })
 
   fill(255);
   rect(0, 0, width, 50);
@@ -199,13 +206,14 @@ function riverProgressManager() {
 function spawnManger() {
   if(shared.natureTrigger) {
     spawnNature();
+    spawnNature();
     shared.natureTrigger = false;
 
-    if(parseInt(random(10)) == 1 && deer.length < 30) {
+    if(parseInt(random(10)) == 1 && swan.length < 15) {
       spawnSwan();
     }
 
-    if(parseInt(random(5)) == 1 && swan.length < 15) {
+    if(parseInt(random(5)) == 1 && deer.length < 30) {
       spawnDeer();
     }
   }
@@ -237,12 +245,16 @@ function animalCheckManager(animalArray, i) {
     while(isTraversable(Math.round(animalArray[i].pos.x), Math.round(animalArray[i].pos.y))) {   
       animalArray[i].pos.x = random(width);
       animalArray[i].pos.y = random(height);
+
+      console.log("water animal while loop fired");
     }
   }
   else {
     while(!isTraversable(Math.round(animalArray[i].pos.x), Math.round(animalArray[i].pos.y))) {   
       animalArray[i].pos.x = random(width);
       animalArray[i].pos.y = random(height);
+
+      console.log("land animal while loop fired");
     }
   }
 }
@@ -276,8 +288,11 @@ function isTraversable(col, row) {
 function buildingRangeCheckManager(array, index) {
   for(let i = 0; i < array.length; i++) {
     while((!isTraversable(Math.round(array[i].pos.x), Math.round(array[i].pos.y)) || buildingRangeCheck(array, index)) || array[i].xBoundaryTest() || array[i].yBoundaryTest()) {     
-      array[index].pos.x = random(width);
-      array[index].pos.y = random(height);
+        
+      console.log("building checker while fired");
+      
+      array[index].pos.x = random(array[index].size / 2, width - array[index].size / 2);
+      array[index].pos.y = random(height - array[index].size / 2);
     }
 
     if(array[index].buildingType == 1) {
@@ -309,11 +324,11 @@ function buildingRangeCheck(array, currentBuilding) {
 function spawnFactory() {
   let size = 250;
 
-  if(factory.length < 1) {
+  if(factory.length < 3) {
     factory.push(
       new building(
         1,
-        createVector(random(width), random(height)), // Position of the building
+        createVector(random(size / 2, width - size / 2), random(height - size / 2)), // Position of the building
         size,                                        // Size of the building image (width and height of the rendered image).
         factoryAsset,                                // The image asset representing the building visually.
         createVector(0, 0),                          // Position of the smoke effect
@@ -323,7 +338,6 @@ function spawnFactory() {
         true, 60 * 10, 60 * 10, 4));                            // Proximity to Identical Buildings
   
     buildingRangeCheckManager(factory, factory.length - 1);
-  
   }
 }
 
@@ -402,7 +416,7 @@ function spawnSettlement() {
     settlement.push(
       new building(
         2,
-        createVector(random(width), random(height)), // Position of the building
+        createVector(random(size / 2, width - size / 2), random(height - size / 2)), // Position of the building
         size,                                        // Size of the building image (width and height of the rendered image).
         asset,                                       // The image asset representing the building visually.
         createVector(0, 0),                          // Position of the smoke effect
@@ -461,7 +475,6 @@ function spawnDeer() {
     animalCheckManager(deer, deer.length - 1);
 }
 
-
 function spawnPerson(x, y, personArray, personType) {
   let size = 50;
   
@@ -482,7 +495,6 @@ function spawnPerson(x, y, personArray, personType) {
     )
   );
 }
-
 
 /*
 function animationManager(Person person) {
@@ -516,7 +528,6 @@ function spawnAnimation(building) {
 
     // Calculate the backout easing value (backout(t))
     building.scaleFactor = backOut(building.currentTime / building.easingDuration);
-    
   }
 
   return building.scaleFactor;
@@ -641,14 +652,16 @@ class building {
 
     image(this.asset, this.pos.x - scaledSize / 2, this.pos.y - scaledSize, scaledSize, scaledSize); // Centering the image by using negative size/2
 
+    console.log();
+
     if(this.buildingType == 1 || this.buildingType == 2) {
-      this.childManager(this.workers);
+      this.personManager(this.workers);
     }
   }
 
-  childManager(person) {
+  personManager(person) {
     if(this.buildingType == 1) {
-      let maxPeople = 5;
+      let maxPeople = 3;
 
       if(person.length < maxPeople) {
         for(let i = person.length; i < maxPeople; i++) {
@@ -964,7 +977,7 @@ class person {
   }
 
   display() {
-    let scaleFactor = this.spawnAnimation();
+    this.scaleFactor = this.spawnAnimation();
     let scaledSize = this.size * this.scaleFactor;
 
     if(this.moving == true) {
@@ -1008,18 +1021,31 @@ class person {
     pop();
   }
 
-  movementManager(building) {    
-    if(nature.length > 0 && !this.item && this.personType == 1) {
-      this.collect();
+  movementManager(building) {
+    //worker behaviour
+    if(this.personType == 1) {
+      if(nature.length > 0 && !this.item) {
+        this.collect();
+      }
+      else if(this.item) {
+        this.produce(building);
+      }
+      else {
+        this.walk();
+      }
     }
-    else if(this.item) {
-      this.produce(building);
-    }
-    else if(this.personType == 0 && totalTechPoints > 0 && building.techPoints < 1) {
-      this.retreive();
-    }
-    else {
-      this.walk();
+
+    //citizen behavior
+    if(this.personType == 0) {
+      if(totalTechPoints > 0 && building.techPoints == 0 && !this.item) {
+        this.retreive();
+      }
+      else if(this.item) {
+        this.produce(building);
+      }
+      else {
+        this.walk();
+      }
     }
   }
 
@@ -1114,13 +1140,10 @@ class person {
 
     nature.forEach((resource, index, array) => {      
       if(dist(this.pos.x, this.pos.y, resource.pos.x, resource.pos.y) < dist(this.pos.x, this.pos.y, closestResource.x, closestResource.y) && resource.state) {
-        closestResource.x = resource.pos.x;
-        closestResource.y = resource.pos.y;
+        closestResource = resource.pos;
 
         activeIndex = index;
       }
-
-      index ++;
     });
 
     this.newLocation.x = closestResource.x;
@@ -1171,10 +1194,8 @@ class person {
     }
   }
 
-  retreive() {    
+  retreive() { 
     let closestResource = 0;
-
-    let index = 0;
     let activeIndex = 0;
 
     if(closestResource == 0) {
@@ -1183,19 +1204,18 @@ class person {
           closestResource = resource.pos;
         }
       })
+
+      factory.forEach((resource, index) => {
+        if(resource.techPoints > 0 && dist(this.pos.x, this.pos.y, resource.pos.x, resource.pos.y) < dist(this.pos.x, this.pos.y, closestResource.x, closestResource.y)) {
+          closestResource = resource.pos;
+
+          activeIndex = index;
+        }
+      });
+
+      this.newLocation.x = closestResource.x;
+      this.newLocation.y = closestResource.y;
     }
-
-    factory.forEach((resource, index) => {
-      if(resource.techPoints > 0 && dist(this.pos.x, this.pos.y, resource.pos.x, resource.pos.y) < dist(this.pos.x, this.pos.y, closestResource.x, closestResource.y)) {
-        closestResource.x = resource.pos.x;
-        closestResource.y = resource.pos.y;
-
-        activeIndex = index
-      }
-    });
-
-    this.newLocation.x = closestResource.x;
-    this.newLocation.y = closestResource.y;
 
     let angle = atan2(this.newLocation.y - this.pos.y, this.newLocation.x - this.pos.x);
 
