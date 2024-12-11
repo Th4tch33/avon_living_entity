@@ -30,6 +30,56 @@ let nature = [];
 let factory = [];
 let settlement = [];
 
+let points = [];
+
+class point {
+  pointHeight = 200;
+  dead = false;
+  speed = 1.5;
+  ogPos = 0;
+
+  constructor(state, pointPos) {
+    this.state = state;
+    this.pointPos = pointPos;
+  }
+
+  display() {   
+    let alphaValue = 0;
+
+    if(this.ogPos == 0) {
+      this.ogPos = createVector(this.pointPos.x, this.pointPos.y);
+    }
+    
+    this.pointPos.y -= this.speed;
+
+    if(this.ogPos.y - this.pointPos.y < this.pointHeight * 0.2) {    
+      alphaValue = (this.ogPos.y - this.pointPos.y) * 255 / 20;
+    }
+    else if (this.ogPos.y - this.pointPos.y > this.pointHeight * 0.8) {
+      alphaValue = abs(this.ogPos.y - this.pointHeight - this.pointPos.y) * 255 / 20;
+    }
+    else {
+      alphaValue = 255;
+    }
+
+    if(this.ogPos.y - this.pointPos.y > this.pointHeight) {
+      this.dead = true;
+    }
+
+    textAlign(CENTER);
+    textSize(20);
+
+    if(this.state < 0) {
+      fill(200, 0, 25, alphaValue);
+      text(this.state, this.pointPos.x, this.pointPos.y);
+    }
+    else {
+      fill(20, 75, 0, alphaValue);
+      text("+" + this.state, this.pointPos.x, this.pointPos.y);
+    }
+  }
+}
+
 function preload() {
   swanAsset[0] = loadImage("assets/swan_water.png");
   swanAsset[1] = loadImage("assets/swan_air.png");
@@ -63,6 +113,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   //fullScreen();
   frameRate(60);
+  angleMode(DEGREES);
 
   partyConnect("wss://deepstream-server-1.herokuapp.com", "avonLivingEntity");
 
@@ -147,6 +198,14 @@ function draw() {
 
     if(!Nature.state && !Nature.animating) {
       nature.splice(index, 1);
+    }
+  });
+
+  points.forEach(function(Point, index) {    
+    Point.display();
+
+    if(Point.dead) {
+      points.splice(index, 1);
     }
   });
 
@@ -395,16 +454,25 @@ function spawnSettlement() {
     if(mostMaterialFactory.techPoints >= 2) {
       if(usedTech == 0) {
         mostMaterialFactory.techPoints -= 2;
+
+        spawnPoint(-2, mostMaterialFactory.pos);
+
         usedTech += 2;
       }
       else if(usedTech == 1) {
         mostMaterialFactory.techPoints --;
+
+        spawnPoint(-1, mostMaterialFactory.pos);
+
         usedTech ++;
       }
       
     }
     else if (mostMaterialFactory.techPoints == 1) {
       mostMaterialFactory.techPoints --;
+
+      spawnPoint(-1, mostMaterialFactory.pos);
+
       usedTech ++;
     }
   }
@@ -512,6 +580,14 @@ function spawnPerson(x, y, personArray, personType) {
   );
 }
 
+function spawnPoint(state, pos) {
+  points.push(
+    new point(
+      state,
+      createVector(pos.x, pos.y)
+  ));
+}
+
 function animationManagerPerson(person) {
   if(person.state){ 
     spawnAnimation(person);
@@ -593,6 +669,8 @@ class building {
 
   techPoints = 0;
 
+  angle = 0;
+
   //buildingType 0 = Nature 1 = Factory 2 = Residential
   constructor(buildingType, pos, size, asset, smokePos, smokeSpeed, smokeHeight, closeness, state, currentLife, lifeSpan, maintenance) {
     this.buildingType = buildingType;
@@ -616,6 +694,9 @@ class building {
 
     if(this.techPoints >= this.maintenance && this.currentLife <= 0) {
       this.techPoints -= this.maintenance;
+
+      spawnPoint(-this.maintenance, this.pos);
+
       this.currentLife = this.lifeSpan;
     }
     else if(this.currentLife <= 0 && this.state) {
@@ -625,6 +706,8 @@ class building {
       this.animating = true; 
 
       this.item = true;
+
+      spawnPoint(-this.maintenance, this.pos);
 
       if(this.buildingType > 0) {
         this.workers.forEach(function(Worker) {
@@ -680,9 +763,6 @@ class building {
     fill(0);
     textAlign(CENTER);
     textSize(15);
-    if(this.buildingType > 0) {
-      text("Materials: " + this.techPoints, this.pos.x, this.pos.y + 20);
-    }
 
     animationManagerBuilding(this);
 
@@ -690,6 +770,19 @@ class building {
     let scaledSizeY = this.asset.height * this.size * this.scaleFactor;
 
     image(this.asset, this.pos.x - scaledSizeX / 2, this.pos.y - scaledSizeY, scaledSizeX, scaledSizeY); // Centering the image by using negative size/2
+
+    if(this.buildingType > 0) {
+      
+      // Draw the pie chart filling
+      fill(255, 0, 0);
+      noStroke();
+      arc(this.pos.x - 50, this.pos.y + 15, 20, 20, -90, this.angle - 90, PIE);
+
+      this.angle = map(this.currentLife, 0, this.lifeSpan, 0, 360); // Stop at 100%
+      
+      fill(0);
+      text("Materials: " + this.techPoints, this.pos.x + 10, this.pos.y + 20);
+    }
 
     if(this.buildingType == 1 || this.buildingType == 2) {
       this.personManager(this.workers);
@@ -1110,6 +1203,8 @@ class person {
 
       building.techPoints ++;
 
+      spawnPoint(1, this.pos);
+
       factoryX = 0;
       factoryY = 0;
     }
@@ -1282,6 +1377,8 @@ class person {
         this.newLocation.y = 0;
 
         factory[activeIndex].techPoints --;
+
+        spawnPoint(-1, this.pos);
 
         this.item = true;
       }
