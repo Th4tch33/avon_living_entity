@@ -29,31 +29,31 @@ let factory = [];
 let settlement = [];
 
 function preload() {
-  swanAsset[0] = loadImage("swan_water.png");
-  swanAsset[1] = loadImage("swan_air.png");
+  swanAsset[0] = loadImage("assets/swan_water.png");
+  swanAsset[1] = loadImage("assets/swan_air.png");
   
-  deerAsset[0] = loadImage("deer_stand.png");
-  deerAsset[1] = loadImage("deer_eat.png");
-  deerAsset[2] = loadImage("deer_jump.png");
+  deerAsset[0] = loadImage("assets/deer_stand.png");
+  deerAsset[1] = loadImage("assets/deer_eat.png");
+  deerAsset[2] = loadImage("assets/deer_jump.png");
   
-  bushAsset = loadImage("bush.png");
-  treeAsset = loadImage("tree.png");
+  bushAsset = loadImage("assets/bush.png");
+  treeAsset = loadImage("assets/tree.png");
   
-  factoryAsset = loadImage("factory.png");
-  smokeAsset = loadImage("smoke.png");
+  factoryAsset = loadImage("assets/factory.png");
+  smokeAsset = loadImage("assets/smoke.png");
   
-  houseAsset = loadImage("house.png");
-  cityhallAsset = loadImage("cityhall.png");
-  storefrontAsset = loadImage("storefront.png");
+  houseAsset = loadImage("assets/house.png");
+  cityhallAsset = loadImage("assets/cityhall.png");
+  storefrontAsset = loadImage("assets/storefront.png");
   
-  personAsset[0] = loadImage("person_standing.png");
-  personAsset[1] = loadImage("person_running.png");
-  personAsset[2] = loadImage("person_log01.png");
-  personAsset[3] = loadImage("person_log02.png");
-  personAsset[4] = loadImage("person_standing_water.png");
-  personAsset[5] = loadImage("person_running_water.png");
-  personAsset[6] = loadImage("person_log01_water.png");
-  personAsset[7] = loadImage("person_log02_water.png");
+  personAsset[0] = loadImage("assets/person_standing.png");
+  personAsset[1] = loadImage("assets/person_running.png");
+  personAsset[2] = loadImage("assets/person_log01.png");
+  personAsset[3] = loadImage("assets/person_log02.png");
+  personAsset[4] = loadImage("assets/person_standing_water.png");
+  personAsset[5] = loadImage("assets/person_running_water.png");
+  personAsset[6] = loadImage("assets/person_log01_water.png");
+  personAsset[7] = loadImage("assets/person_log02_water.png");
 }
 
 //!Program
@@ -104,14 +104,22 @@ function draw() {
 
   totalTechPoints = tempTotalTechPoints;
 
-  swan.forEach(function(swan, index, array) {    
-    swan.display();
-    swan.movementManager();
+  swan.forEach(function(Swan, index, array) {    
+    Swan.display();
+    Swan.movementManager();
+
+    if(!Swan.state && !Swan.animating) {
+      swan.splice(index, 1);
+    }
   });
 
-  deer.forEach(function(deer, index, array) {    
-    deer.display();
-    deer.movementManager();
+  deer.forEach(function(Deer, index, array) {    
+    Deer.display();
+    Deer.movementManager();
+
+    if(!Deer.state && !Deer.animating) {
+      deer.splice(index, 1);
+    }
   });
 
   factory.forEach(function(Factory, index, array) {    
@@ -206,15 +214,15 @@ function riverProgressManager() {
 function spawnManger() {
   if(shared.natureTrigger) {
     spawnNature();
-    spawnNature();
+    
     shared.natureTrigger = false;
 
-    if(parseInt(random(10)) == 1 && swan.length < 15) {
-      spawnSwan();
+    if(nature.length % 5  == 0) {
+      spawnDeer();
     }
 
-    if(parseInt(random(5)) == 1 && deer.length < 30) {
-      spawnDeer();
+    if(nature.length % 10  == 0) {
+      spawnSwan();
     }
   }
 
@@ -231,11 +239,12 @@ function spawnManger() {
 
 //!Initialization
 function setTraversableArea() {
+
   for(let i = 0; i < width; i++) {
     for(let n = height / 2 - height / 8; n < height / 2 - height / 8 + height / 4; n++) {
       let index = n * width + i;
-      
-      occupancyGrid[index] = true;
+
+      occupancyGrid[int(index)] = true;
     }
   }
 }
@@ -245,16 +254,12 @@ function animalCheckManager(animalArray, i) {
     while(isTraversable(Math.round(animalArray[i].pos.x), Math.round(animalArray[i].pos.y))) {   
       animalArray[i].pos.x = random(width);
       animalArray[i].pos.y = random(height);
-
-      console.log("water animal while loop fired");
     }
   }
   else {
     while(!isTraversable(Math.round(animalArray[i].pos.x), Math.round(animalArray[i].pos.y))) {   
       animalArray[i].pos.x = random(width);
       animalArray[i].pos.y = random(height);
-
-      console.log("land animal while loop fired");
     }
   }
 }
@@ -288,8 +293,6 @@ function isTraversable(col, row) {
 function buildingRangeCheckManager(array, index) {
   for(let i = 0; i < array.length; i++) {
     while((!isTraversable(Math.round(array[i].pos.x), Math.round(array[i].pos.y)) || buildingRangeCheck(array, index)) || array[i].xBoundaryTest() || array[i].yBoundaryTest()) {     
-        
-      console.log("building checker while fired");
       
       array[index].pos.x = random(array[index].size / 2, width - array[index].size / 2);
       array[index].pos.y = random(height - array[index].size / 2);
@@ -322,7 +325,7 @@ function buildingRangeCheck(array, currentBuilding) {
 }
   
 function spawnFactory() {
-  let size = 250;
+  let size = 0.4;
 
   if(factory.length < 3) {
     factory.push(
@@ -333,7 +336,7 @@ function spawnFactory() {
         factoryAsset,                                // The image asset representing the building visually.
         createVector(0, 0),                          // Position of the smoke effect
         random(0.5, 1),                              // Smoke Speed
-        random(70, 100),                             // Smoke Height
+        random(90, 120),                             // Smoke Height
         size * 1.5, 
         true, 60 * 10, 60 * 10, 4));                            // Proximity to Identical Buildings
   
@@ -342,14 +345,14 @@ function spawnFactory() {
 }
 
 function spawnNature() {
-  let size = 55;
+  let size = 0.1;
   let asset = bushAsset;
     
   let natureAsset = parseInt(random(1, 4));
   
   if(natureAsset == 2 || natureAsset == 3) {
     asset = treeAsset;
-    size = 125;
+    size = 0.2;
   }
   
   nature.push(
@@ -369,47 +372,53 @@ function spawnNature() {
 function spawnSettlement() {
   let usedTech = 0;
 
+  let mostMaterialFactory = 0;
+
   if(totalTechPoints >= 2) {
-    for (let index = 0; index < factory.length; index++) {
-      if(factory[index].techPoints >= 2) {
-        if(usedTech == 0) {
-          factory[index].techPoints -= 2;
-          usedTech += 2;
-        }
-        else if(usedTech == 1) {
-          factory[index].techPoints --;
-          usedTech ++;
-        }
-        
+    factory.forEach(function(Factory) {
+      if(mostMaterialFactory == 0) {
+        mostMaterialFactory = Factory;
       }
-      else if (factory[index].techPoints == 1) {
-        factory[index].techPoints --;
+  
+      if(Factory.techPoints > mostMaterialFactory.techPoints) {
+        mostMaterialFactory = Factory;
+      }
+    });
+
+    if(mostMaterialFactory.techPoints >= 2) {
+      if(usedTech == 0) {
+        mostMaterialFactory.techPoints -= 2;
+        usedTech += 2;
+      }
+      else if(usedTech == 1) {
+        mostMaterialFactory.techPoints --;
         usedTech ++;
       }
       
-      // Some condition to break
-      if (usedTech == 2) {
-        break;  // Exit the loop when condition is met
-      }
+    }
+    else if (mostMaterialFactory.techPoints == 1) {
+      mostMaterialFactory.techPoints --;
+      usedTech ++;
     }
   }
 
   if(usedTech == 2) {
-    let size = 95;
-
+    let size;
     let asset;
     let settlementAsset = parseInt(random(1, 3));
 
     if(settlement.length == 0) {
       asset = cityhallAsset;
-      size = 140;
+      size = 0.085;
     }
     else {
       if(settlementAsset == 1) {
         asset = houseAsset;
+        size = 0.055;
       }
       else {
         asset = storefrontAsset;
+        size = 0.03;
       }
     }
 
@@ -429,7 +438,7 @@ function spawnSettlement() {
 }
 
 function spawnSwan() {
-  let size = 55;
+  let size = 0.25;
   
   swan.push(
     new animal(
@@ -440,12 +449,12 @@ function spawnSwan() {
       0,                                  // Initial wait timer (counts down to zero to control waiting state)
       1,                                  // Animation type (used for specifying animation behavior or type if needed)
       false,                              // Moving state (let to indicate if the animal is currently moving)
-      parseInt(random(90, 120)),                // Speed (controls how fast the animal moves towards the target)
-      parseInt(random(size * 0.8, size)),                               // Size (the size of the animal in pixels, used for display)
+      random(90, 120),                // Speed (controls how fast the animal moves towards the target)
+      random(size * 0.8, size),                               // Size (the size of the animal in pixels, used for display)
       500,                                // Range (defines the movement range within which the animal can roam)
       swanAsset,                            // Asset (image to represent the animal visually)
       false,
-      0
+      0, true, nature.length
     )
   );
 
@@ -453,7 +462,7 @@ function spawnSwan() {
 }
 
 function spawnDeer() {
-  let size = 80;
+  let size = 0.35;
   
   deer.push(
     new animal(
@@ -464,12 +473,12 @@ function spawnDeer() {
       0,                                  // Initial wait timer (counts down to zero to control waiting state)
       0,                                  // Animation type (used for specifying animation behavior or type if needed)
       false,                              // Moving state (let to indicate if the animal is currently moving)
-      int(random(40, 70)),                // Speed (controls how fast the animal moves towards the target)
-      int(random(size * 0.8, size)),                               // Size (the size of the animal in pixels, used for display)
+      random(40, 70),                // Speed (controls how fast the animal moves towards the target)
+      random(size * 0.8, size),                               // Size (the size of the animal in pixels, used for display)
       250,                                // Range (defines the movement range within which the animal can roam)
       deerAsset,                            // Asset (image to represent the animal visually)
       false,
-      0
+      0, true, nature.length
     ));
     
     animalCheckManager(deer, deer.length - 1);
@@ -491,22 +500,31 @@ function spawnPerson(x, y, personArray, personType) {
       250,                                // Range (defines the movement range within which the animal can roam)
       personAsset,                            // Asset (image to represent the animal visually)
       false,
-      false
+      false, true, factory.length
     )
   );
 }
 
-/*
-function animationManager(Person person) {
-  if();
+function animationManagerPerson(person) {
+  if(person.state){ 
+    spawnAnimation(person);
+  }
+  else if(!person.state) {
+    deathAnimation(person);
+  }
 }
 
-function animationManager(Animal animal) {
-  if();
-}*/
+function animationManagerAnimal(animal) {
+  if(animal.state){ 
+    spawnAnimation(animal);
+  }
+  else if(!animal.state) {
+    deathAnimation(animal);
+  }
+}
 
 
-function animationManager(building) {     
+function animationManagerBuilding(building) {     
   if(building.state){ 
     spawnAnimation(building);
   }
@@ -515,41 +533,40 @@ function animationManager(building) {
   }
 }
 
-function spawnAnimation(building) {
+function spawnAnimation(entity) {
   // Calculate the easing based on time and apply backout easing
-  if (building.animating) {
+  if (entity.animating) {
+    entity.currentTime += 1.0 / frameRate();  // Increment time based on frame rate
 
-    building.currentTime += 1.0 / frameRate();  // Increment time based on frame rate
-
-    if (building.currentTime > building.easingDuration) {
-      building.currentTime = building.easingDuration;  // Cap time at the easing duration
-      building.animating = false;  // Stop animating once we reach the target time
+    if (entity.currentTime > entity.easingDuration) {
+      entity.currentTime = entity.easingDuration;  // Cap time at the easing duration
+      entity.animating = false;  // Stop animating once we reach the target time
     } 
 
     // Calculate the backout easing value (backout(t))
-    building.scaleFactor = backOut(building.currentTime / building.easingDuration);
+    entity.scaleFactor = backOut(entity.currentTime / entity.easingDuration);
   }
 
-  return building.scaleFactor;
+  return entity.scaleFactor;
 }
 
-function deathAnimation(building) {
+function deathAnimation(entity) {
   // Calculate the easing based on time and apply backout easing    
   
-  if (building.animating) {
+  if (entity.animating) {
     
-    building.currentTime -= 1.0 / frameRate();  // Increment time based on frame rate
+    entity.currentTime -= 1.0 / frameRate();  // Increment time based on frame rate
 
-    if (building.currentTime < 0) {
-      building.currentTime = 0;  // Cap time at the easing duration
-      building.animating = false;  // Stop animating once we reach the target time
+    if (entity.currentTime < 0) {
+      entity.currentTime = 0;  // Cap time at the easing duration
+      entity.animating = false;  // Stop animating once we reach the target time
     } 
 
     // Calculate the backout easing value (backout(t))
-    building.scaleFactor = backOut(building.currentTime / building.easingDuration);
+    entity.scaleFactor = backOut(entity.currentTime / entity.easingDuration);
   }
 
-  return building.scaleFactor;
+  return entity.scaleFactor;
 }
 
 // Backout easing function
@@ -601,6 +618,20 @@ class building {
       this.animating = true; 
 
       this.item = true;
+
+      if(this.buildingType > 0) {
+        this.workers.forEach(function(Worker) {
+          if(Worker.state) {
+
+            Worker.state = false;
+            
+            Worker.scaleFactor = 1;
+            Worker.currentTime = 0.35;
+            Worker.animating = true;
+          }
+          
+        })
+      }
     }
   }
 
@@ -630,7 +661,7 @@ class building {
         tint(255, 255);
       }
 
-      image(smokeAsset, this.smokePos.x - this.size / 2, this.smokePos.y - this.size, this.size, this.size);
+      image(smokeAsset, this.smokePos.x - this.size  * smokeAsset.width / 2, this.smokePos.y - this.size  * smokeAsset.height, this.size * smokeAsset.width, this.size * smokeAsset.height);
       tint(255, 255);
     }
   }
@@ -646,13 +677,12 @@ class building {
       text("Materials: " + this.techPoints, this.pos.x, this.pos.y + 20);
     }
 
-    animationManager(this);
+    animationManagerBuilding(this);
 
-    let scaledSize = this.size * this.scaleFactor;
+    let scaledSizeX = this.asset.width * this.size * this.scaleFactor;
+    let scaledSizeY = this.asset.height * this.size * this.scaleFactor;
 
-    image(this.asset, this.pos.x - scaledSize / 2, this.pos.y - scaledSize, scaledSize, scaledSize); // Centering the image by using negative size/2
-
-    console.log();
+    image(this.asset, this.pos.x - scaledSizeX / 2, this.pos.y - scaledSizeY, scaledSizeX, scaledSizeY); // Centering the image by using negative size/2
 
     if(this.buildingType == 1 || this.buildingType == 2) {
       this.personManager(this.workers);
@@ -687,7 +717,6 @@ class building {
 }
 
 class animal {  
-  
   assetTracker = 0;
   scaleFactor = 0;  // Scale factor for the rectangle
   targetScale = 1;  // Final scale size
@@ -696,10 +725,8 @@ class animal {
   animating = true;  // Flag to track if the animation is running
 
   //animType 0 = deer 1 = swan
-  constructor(pos, transPos, newLocation, waitTime, waitTimer, animalType, moving, speed, size, range, asset, direction, animationType) {
-    
+  constructor(pos, transPos, newLocation, waitTime, waitTimer, animalType, moving, speed, size, range, asset, direction, animationType, state, natureLink) {
     // pos, transPos, newLocation = vectors
-    
     this.pos = pos;
     this.transPos = transPos;
     this.newLocation = newLocation;
@@ -713,10 +740,48 @@ class animal {
     this.asset = asset;
     this.direction = direction;
     this.animationType = animationType;
+    this.state = state;
+    this.natureLink = natureLink;
+  }
+
+  display() {
+    this.lifeManager();
+    
+    animationManagerAnimal(this);
+
+      let scaledSizeX = this.asset[this.assetTracker].width * this.size * this.scaleFactor;
+      let scaledSizeY = this.asset[this.assetTracker].height * this.size * this.scaleFactor;
+
+      // Push the current matrix onto the stack
+      push();
+  
+        // Move the origin to the position of the animal before scaling
+        translate(this.transPos.x + this.pos.x, this.transPos.y + this.pos.y);
+    
+        // Flip the image horizontally if the direction is false
+        if(this.direction == false) {
+            scale(-1, 1);
+        }
+
+        // Draw the image centered at the origin
+        image(this.asset[this.assetTracker], -scaledSizeX / 2, -scaledSizeY, scaledSizeX, scaledSizeY); // Centering 
+  
+      // Pop the matrix to return to the previous state
+      pop();
+  }
+
+  lifeManager() {
+    if(this.natureLink > nature.length && this.state) {
+      this.state = false;
+      this.scaleFactor = 1;
+      this.currentTime = 0.35;
+      this.animating = true; 
+
+      this.item = true;
+    }
   }
 
   newLocationFinder() {
-
     if (!this.moving && this.waitTimer == 0) {
       this.moving = true;
 
@@ -869,51 +934,6 @@ class animal {
     }
   }
 
-  spawnAnimation() {
-    // Calculate the easing based on time and apply backout easing
-    if (this.animating) {
-      this.currentTime += 1.0 / frameRate();  // Increment time based on frame rate
-      
-      if (this.currentTime > this.easingDuration) {
-        this.currentTime = this.easingDuration;  // Cap time at the easing duration
-        this.animating = false;  // Stop animating once we reach the target time
-      } 
-  
-      // Calculate the backout easing value (backout(t))
-      this.scaleFactor = this.backOut(this.currentTime / this.easingDuration);
-    }
-  
-    return this.scaleFactor;
-  }
-  
-  // Backout easing function
-  backOut(t) {
-    let s = 1.70158;  // Overshoot value (you can tweak this for more/less overshoot)
-    return (--t) * t * ((s + 1) * t + s) + 1;
-  }
-
-  display() {
-      let scaleFactor = this.spawnAnimation();
-      let scaledSize = this.size * scaleFactor;
-
-      // Push the current matrix onto the stack
-      push();
-  
-        // Move the origin to the position of the animal before scaling
-        translate(this.transPos.x + this.pos.x, this.transPos.y + this.pos.y);
-    
-        // Flip the image horizontally if the direction is false
-        if(this.direction == false) {
-            scale(-1, 1);
-        }
-
-        // Draw the image centered at the origin
-        image(this.asset[this.assetTracker], -scaledSize / 2, -scaledSize, scaledSize, scaledSize); // Centering 
-  
-      // Pop the matrix to return to the previous state
-      pop();
-  }
-
   movementVisualizer() {
     strokeWeight(4);
     stroke(0);
@@ -962,7 +982,7 @@ class person {
   animating = true;  // Flag to track if the animation is running
 
   //animType 0 = resident 1 = worker
-  constructor(pos, newLocation, waitTime, waitTimer, personType, moving, speed, size, range, asset, direction, item) {
+  constructor(pos, newLocation, waitTime, waitTimer, personType, moving, speed, size, range, asset, direction, item, state) {
     this.pos = pos;
     this.newLocation = newLocation;
     this.waitTime = waitTime;
@@ -974,10 +994,12 @@ class person {
     this.size = size;
     this.asset = asset;
     this.direction = direction;
+    this.state = state;
   }
 
   display() {
-    this.scaleFactor = this.spawnAnimation();
+    animationManagerPerson(this);
+
     let scaledSize = this.size * this.scaleFactor;
 
     if(this.moving == true) {
@@ -1265,29 +1287,6 @@ class person {
 
   yBoundaryTest() {
     return this.newLocation.y < 0 || this.newLocation.y > height;
-  }
-
-  spawnAnimation() {
-    // Calculate the easing based on time and apply backout easing
-    if (this.animating) {
-      this.currentTime += 1.0 / frameRate();  // Increment time based on frame rate
-
-      if (this.currentTime > this.easingDuration) {
-        this.currentTime = this.easingDuration;  // Cap time at the easing duration
-        this.animating = false;  // Stop animating once we reach the target time
-      } 
-
-      // Calculate the backout easing value (backout(t))
-      this.scaleFactor = backOut(this.currentTime / this.easingDuration);
-    }
-
-    return this.scaleFactor;
-  }
-
-  // Backout easing function
-  backOut(t) {
-    let s = 1.70158;  // Overshoot value (you can tweak this for more/less overshoot)
-    return (--t) * t * ((s + 1) * t + s) + 1;
   }
 }
 
