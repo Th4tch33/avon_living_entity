@@ -5,21 +5,27 @@
 }
 
 body {
-    margin: 0;
+    margin: 0 10vw;
     overflow-x: hidden;
 }
 
-img {
-    display: block; /* Makes the image a block element */
-    margin: 0 auto; /* Centers it horizontally */
-    width: 70vw; /* Optional: Makes the image responsive */
-
-    margin-top: 3vh;
-}
-
 p {
+    margin: auto;
     font-size: 1em;
     font-weight: 300;
+}
+
+img {
+    width: 100%;
+    height: auto;
+}
+
+#logo {
+    display: block; /* Makes the image a block element */
+    margin: 0 auto; /* Centers it horizontally */
+    width: 100%; /* Optional: Makes the image responsive */
+
+    margin: 3vh 0;
 }
 
 .buttonContainer {
@@ -31,7 +37,7 @@ p {
 }
 
 .buttonWrapper {
-    width: 70vw;
+    width: 100%;
     margin: auto;
 }
 
@@ -51,6 +57,14 @@ button {
 
 button:hover {
     background-color: #ffce1d; /* Darker background on hover */
+}
+
+.infoWrapper {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    column-gap: 3vw;
+
+    margin-top: 3vw;
 }
 
 #natureButton {

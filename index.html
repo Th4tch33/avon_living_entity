@@ -17,22 +17,38 @@
   <body>
     <main></main>
 
-    <img src="logo.png" alt="A Living Entity logo">
+    <img id="logo" src="logo.png" alt="A Living Entity logo">
+
+    <p>Join with multiple devices to add elements into the ecosystem!</p>
 
     <div class="buttonContainer">
       <div class="buttonWrapper">
-        <button id="natureButton">Nature</button>
-        <p>Tap to bring trees and bushes into the Avon River.</p>
+
+        <button id="natureButton">Add +1 Tree</button>
+        
+        <div class="infoWrapper">
+          <img src="assets/tree.png" alt="tree">
+          <p>Who doesn't love a good tree?</p>
+        </div>
+
       </div>
 
       <div class="buttonWrapper">
-        <button id="factoryButton">Factory</button>
-        <p>Tap to build a factory. A factory will collect tress and bushes to convert to material. The facotry needs 4 material every 10 seconds or else it will shut down.</p>
+        <button id="factoryButton">Add +1 Factory</button>
+
+        <div class="infoWrapper">
+          <img src="factoryicon.png" alt="tree">
+          <p>Converts trees to materials. Needs 4 material every 10 seconds to stay open.</p>
+        </div>
       </div>
 
       <div class="buttonWrapper">
-        <button id="settlementButton">Settlement</button>
-        <p>Tap to build settlement. Each building uses 2 material to build and needs 1 material every 10 seconds or else it will fall apart.</p>
+        <button id="settlementButton">Add +1 Building</button>
+
+        <div class="infoWrapper">
+          <img src="assets/cityhall.png" alt="tree">
+          <p>Needs 2 material to build. Uses up 1 material every 10 seconds to stay open.</p>
+        </div>
       </div>
     </div>
       
