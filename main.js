@@ -1,6 +1,8 @@
 // GBDA_412_Final_Code.js
 let shared;
 
+let regionVisualizerScreen = false;
+
 let totalTechPoints = 0;
 
 let bushAsset;
@@ -92,8 +94,10 @@ function draw() {
   fill(52, 228, 234);
   rect(0, height / 2 - height / 8, width, height / 4);
   
-  //regionVisualizer();
-
+  if(regionVisualizerScreen) {
+    regionVisualizer();
+  }
+  
   spawnManger();
 
   let tempTotalTechPoints = 0;
@@ -166,6 +170,9 @@ function keyPressed () {
   }
   else if(key == 'b' || key == 'B') {
     frameRate(60);
+  }
+  else if(key == 'n' || key == 'N') {
+    regionVisualizerScreen = !regionVisualizerScreen;
   }
 }
 
