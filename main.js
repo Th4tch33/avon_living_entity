@@ -417,105 +417,112 @@ function spawnFactory() {
 }
 
 function spawnNature() {
-  let size = 0.1;
-  let asset = bushAsset;
+  
+  if(nature.length < 80) {
+    let size = 0.1;
+    let asset = bushAsset;
+      
+    let natureAsset = parseInt(random(1, 4));
     
-  let natureAsset = parseInt(random(1, 4));
-  
-  if(natureAsset == 2 || natureAsset == 3) {
-    asset = treeAsset;
-    size = 0.2;
+    if(natureAsset == 2 || natureAsset == 3) {
+      asset = treeAsset;
+      size = 0.2;
+    }
+    
+    nature.push(
+      new building(
+        0,
+        createVector(random(width), random(height)), // Position of the building
+        size,                                       // Size of the building image (width and height of the rendered image).
+        asset,                                      // The image asset representing the building visually.
+        createVector(0, 0),                          // Position of the smoke effect
+        random(0.5, 1),                             // Smoke Speed
+        random(50, 80),                             // Smoke Height
+        size / 2, true));                                      // Proximity to Identical Buildings);
+    
+    buildingRangeCheckManager(nature, nature.length - 1);
   }
-  
-  nature.push(
-    new building(
-      0,
-      createVector(random(width), random(height)), // Position of the building
-      size,                                       // Size of the building image (width and height of the rendered image).
-      asset,                                      // The image asset representing the building visually.
-      createVector(0, 0),                          // Position of the smoke effect
-      random(0.5, 1),                             // Smoke Speed
-      random(50, 80),                             // Smoke Height
-      size / 2, true));                                      // Proximity to Identical Buildings);
-  
-  buildingRangeCheckManager(nature, nature.length - 1);
 }
 
 function spawnSettlement() {
-  let usedTech = 0;
 
-  let mostMaterialFactory = 0;
+  if(settlement.length < 15) {
+    let usedTech = 0;
 
-  if(totalTechPoints >= 2) {
-    factory.forEach(function(Factory) {
-      if(mostMaterialFactory == 0) {
-        mostMaterialFactory = Factory;
+    let mostMaterialFactory = 0;
+
+    if(totalTechPoints >= 2) {
+      factory.forEach(function(Factory) {
+        if(mostMaterialFactory == 0) {
+          mostMaterialFactory = Factory;
+        }
+    
+        if(Factory.techPoints > mostMaterialFactory.techPoints) {
+          mostMaterialFactory = Factory;
+        }
+      });
+
+      if(mostMaterialFactory.techPoints >= 2) {
+        if(usedTech == 0) {
+          mostMaterialFactory.techPoints -= 2;
+
+          spawnPoint(-2, mostMaterialFactory.pos);
+
+          usedTech += 2;
+        }
+        else if(usedTech == 1) {
+          mostMaterialFactory.techPoints --;
+
+          spawnPoint(-1, mostMaterialFactory.pos);
+
+          usedTech ++;
+        }
+        
       }
-  
-      if(Factory.techPoints > mostMaterialFactory.techPoints) {
-        mostMaterialFactory = Factory;
-      }
-    });
-
-    if(mostMaterialFactory.techPoints >= 2) {
-      if(usedTech == 0) {
-        mostMaterialFactory.techPoints -= 2;
-
-        spawnPoint(-2, mostMaterialFactory.pos);
-
-        usedTech += 2;
-      }
-      else if(usedTech == 1) {
+      else if (mostMaterialFactory.techPoints == 1) {
         mostMaterialFactory.techPoints --;
 
         spawnPoint(-1, mostMaterialFactory.pos);
 
         usedTech ++;
       }
-      
     }
-    else if (mostMaterialFactory.techPoints == 1) {
-      mostMaterialFactory.techPoints --;
 
-      spawnPoint(-1, mostMaterialFactory.pos);
+    if(usedTech == 2) {
+      let size;
+      let asset;
+      let settlementAsset = parseInt(random(1, 3));
 
-      usedTech ++;
-    }
-  }
-
-  if(usedTech == 2) {
-    let size;
-    let asset;
-    let settlementAsset = parseInt(random(1, 3));
-
-    if(settlement.length == 0) {
-      asset = cityhallAsset;
-      size = 0.085;
-    }
-    else {
-      if(settlementAsset == 1) {
-        asset = houseAsset;
-        size = 0.055;
+      if(settlement.length == 0) {
+        asset = cityhallAsset;
+        size = 0.085;
       }
       else {
-        asset = storefrontAsset;
-        size = 0.03;
+        if(settlementAsset == 1) {
+          asset = houseAsset;
+          size = 0.055;
+        }
+        else {
+          asset = storefrontAsset;
+          size = 0.03;
+        }
       }
+
+      settlement.push(
+        new building(
+          2,
+          createVector(random(size / 2, width - size / 2), random(height - size / 2)), // Position of the building
+          size,                                        // Size of the building image (width and height of the rendered image).
+          asset,                                       // The image asset representing the building visually.
+          createVector(0, 0),                          // Position of the smoke effect
+          random(0.5, 1),                              // Smoke Speed
+          random(50, 80),                              // Smoke Height
+          size * 1.5, true, 60 * 15, 60 * 15, 1));                                      // Proximity to Identical Buildings);
+
+      buildingRangeCheckManager(settlement, settlement.length - 1);
     }
-
-    settlement.push(
-      new building(
-        2,
-        createVector(random(size / 2, width - size / 2), random(height - size / 2)), // Position of the building
-        size,                                        // Size of the building image (width and height of the rendered image).
-        asset,                                       // The image asset representing the building visually.
-        createVector(0, 0),                          // Position of the smoke effect
-        random(0.5, 1),                              // Smoke Speed
-        random(50, 80),                              // Smoke Height
-        size * 1.5, true, 60 * 15, 60 * 15, 1));                                      // Proximity to Identical Buildings);
-
-    buildingRangeCheckManager(settlement, settlement.length - 1);
   }
+  
 }
 
 function spawnSwan() {
